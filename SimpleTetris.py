@@ -49,7 +49,7 @@ MINO_STATE = {'T' : [((-1,  0), ( 0, -1), ( 0,  0), ( 0,  1)),
                      ((-1,  0), ( 0,  0), ( 0,  1), ( 1,  1)),
                      (( 0,  0), ( 0,  1), ( 1, -1), ( 1,  0)),
                      ((-1, -1), ( 0, -1), ( 0,  0), ( 1,  0))],
-              'Z' : [((-1, -1), ( 0, -1), ( 0,  0), ( 0,  1)),
+              'Z' : [((-1, -1), (-1,  0), ( 0,  0), ( 0,  1)),
                      ((-1,  1), ( 0,  0), ( 0,  1), ( 1,  0)),
                      (( 0, -1), ( 0,  0), ( 1,  0), ( 1,  1)),
                      ((-1,  0), ( 0, -1), ( 0,  0), ( 1, -1))],
@@ -121,108 +121,31 @@ if __name__ == "__main__":
         curMino = minoQueue.pop(0)
         curPos = [0, 0]
         curRot = 0
-        if curMino == 'T':
-            field[4][4] = MINO_DICT[curMino]
-            field[5][3] = MINO_DICT[curMino]
-            field[5][4] = MINO_DICT[curMino]
-            field[5][5] = MINO_DICT[curMino]
-            curPos = [5, 4]
-        elif curMino == 'S':
-            field[4][4] = MINO_DICT[curMino]
-            field[4][5] = MINO_DICT[curMino]
-            field[5][3] = MINO_DICT[curMino]
-            field[5][4] = MINO_DICT[curMino]
-            curPos = [5, 4]
-        elif curMino == 'Z':
-            field[4][3] = MINO_DICT[curMino]
-            field[4][4] = MINO_DICT[curMino]
-            field[5][4] = MINO_DICT[curMino]
-            field[5][5] = MINO_DICT[curMino]
-            curPos = [5, 4]
-        elif curMino == 'L':
-            field[4][5] = MINO_DICT[curMino]
-            field[5][3] = MINO_DICT[curMino]
-            field[5][4] = MINO_DICT[curMino]
-            field[5][5] = MINO_DICT[curMino]
-            curPos = [5, 4]
-        elif curMino == 'J':
-            field[4][3] = MINO_DICT[curMino]
-            field[5][3] = MINO_DICT[curMino]
-            field[5][4] = MINO_DICT[curMino]
-            field[5][5] = MINO_DICT[curMino]
-            curPos = [5, 4]
-        elif curMino == 'O':
-            field[4][4] = MINO_DICT[curMino]
-            field[4][5] = MINO_DICT[curMino]
-            field[5][4] = MINO_DICT[curMino]
-            field[5][5] = MINO_DICT[curMino]
-            curPos = [5, 4]
-        elif curMino == 'I':
-            field[4][3] = MINO_DICT[curMino]
-            field[4][4] = MINO_DICT[curMino]
-            field[4][5] = MINO_DICT[curMino]
-            field[4][6] = MINO_DICT[curMino]
+        if curMino == 'I':
             curPos = [4, 4]
-
+        else:
+            curPos = [5, 4]
+        for state in MINO_STATE[curMino][curRot]:
+            field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
         return curMino, curPos, curRot
 
-    def Collide(block, pos, rot):
+    def Collide(mino, pos, rot, kick):
         if pos[0] > 25 or pos [1] < 0 or pos[1] > 9:
             raise
-        if block == 'T':
-            if pos[1] - 1 < 0:
-                return True
-            return  not (ghostField[pos[0]-1][pos[1]] == 0 and
-                         ghostField[pos[0]][pos[1]-1] == 0 and
-                         ghostField[pos[0]][pos[1]] == 0 and
-                         ghostField[pos[0]][pos[1]+1] == 0)
-        elif block == 'S':
-            if pos[1] - 1 < 0:
-                return True
-            return  not (ghostField[pos[0]-1][pos[1]] == 0 and
-                         ghostField[pos[0]-1][pos[1]+1] == 0 and
-                         ghostField[pos[0]][pos[1]-1] == 0 and
-                         ghostField[pos[0]][pos[1]] == 0)
-        elif block == 'Z':
-            if pos[1] - 1 < 0:
-                return True
-            return  not (ghostField[pos[0]-1][pos[1]] == 0 and
-                         ghostField[pos[0]-1][pos[1]-1] == 0 and
-                         ghostField[pos[0]][pos[1]] == 0 and
-                         ghostField[pos[0]][pos[1]+1] == 0)
-        elif block == 'L':
-            if pos[1] - 1 < 0:
-                return True
-            return  not (ghostField[pos[0]-1][pos[1]+1] == 0 and
-                         ghostField[pos[0]][pos[1]-1] == 0 and
-                         ghostField[pos[0]][pos[1]] == 0 and
-                         ghostField[pos[0]][pos[1]+1] == 0)
-        elif block == 'J':
-            if pos[1] - 1 < 0:
-                return True
-            return  not (ghostField[pos[0]-1][pos[1]-1] == 0 and
-                         ghostField[pos[0]][pos[1]-1] == 0 and
-                         ghostField[pos[0]][pos[1]] == 0 and
-                         ghostField[pos[0]][pos[1]+1] == 0)
-        elif block == 'O':
-            return  not (ghostField[pos[0]-1][pos[1]] == 0 and
-                         ghostField[pos[0]-1][pos[1]+1] == 0 and
-                         ghostField[pos[0]][pos[1]] == 0 and
-                         ghostField[pos[0]][pos[1]+1] == 0)
-        elif block == 'I':
-            if pos[1] - 1 < 0:
-                return True
-            return  not (ghostField[pos[0]][pos[1]-1] == 0 and
-                         ghostField[pos[0]][pos[1]] == 0 and
-                         ghostField[pos[0]][pos[1]+1] == 0 and
-                         ghostField[pos[0]][pos[1]+2] == 0)
+        collideFlag = True
+        for state in MINO_STATE[mino][rot]:
+            if pos[1] + state[1] < 0:
+                collideFlag = False
+            collideFlag = collideFlag and (ghostField[pos[0] + state[0]][pos[1] + state[1]] == 0)
+
+        return not collideFlag
 
     curMino, curPos, curRot = NextMino()
     moveDelay = 0
     dropDelay = 0
     hardDropFlag = False
-    
-    
+
+
     while not done:
 
         clock.tick(60)
@@ -239,97 +162,14 @@ if __name__ == "__main__":
             else:
                 try:
                     moveDelay = DELAY_V
-                    if not Collide(curMino, [curPos[0], curPos[1] - 1], curRot):
-                        if curMino == 'T':
-                            field[curPos[0]-1][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
+                    if not Collide(curMino, [curPos[0], curPos[1] - 1], curRot, False):
+                        for state in MINO_STATE[curMino][curRot]:
+                            field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
 
-                            curPos[1] = curPos[1] - 1 if curPos[1] > 0 else 0
+                        curPos[1] = curPos[1] - 1 if curPos[1] > 0 else 0
 
-                            field[curPos[0]-1][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'S':
-                            field[curPos[0]-1][curPos[1]] = 0
-                            field[curPos[0]-1][curPos[1]+1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]-1] = 0
-
-                            curPos[1] = curPos[1] - 1 if curPos[1] > 0 else 0
-
-                            field[curPos[0]-1][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]-1][curPos[1]+1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-
-                        elif curMino == 'Z':
-                            field[curPos[0]-1][curPos[1]] = 0
-                            field[curPos[0]-1][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-
-                            curPos[1] = curPos[1] - 1 if curPos[1] > 0 else 0
-
-                            field[curPos[0]-1][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]-1][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'L':
-                            field[curPos[0]-1][curPos[1]+1] = 0
-                            field[curPos[0]][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-
-                            curPos[1] = curPos[1] - 1 if curPos[1] > 0 else 0
-
-                            field[curPos[0]-1][curPos[1]+1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'J':
-                            field[curPos[0]-1][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-
-                            curPos[1] = curPos[1] - 1 if curPos[1] > 0 else 0
-
-                            field[curPos[0]-1][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'O':
-                            field[curPos[0]-1][curPos[1]] = 0
-                            field[curPos[0]-1][curPos[1]+1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-
-                            curPos[1] = curPos[1] - 1 if curPos[1] > 0 else 0
-
-                            field[curPos[0]-1][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]-1][curPos[1]+1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'I':
-                            field[curPos[0]][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-                            field[curPos[0]][curPos[1]+2] = 0
-
-                            curPos[1] = curPos[1] - 1 if curPos[1] > 0 else 0
-
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+2] = MINO_DICT[curMino]
+                        for state in MINO_STATE[curMino][curRot]:
+                            field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
                 except:
                     pass
 
@@ -339,97 +179,14 @@ if __name__ == "__main__":
             else:
                 try:
                     moveDelay = DELAY_V
-                    if not Collide(curMino, [curPos[0], curPos[1] + 1], curRot):
-                        if curMino == 'T':
-                            field[curPos[0]-1][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
+                    if not Collide(curMino, [curPos[0], curPos[1] + 1], curRot, False):
+                        for state in MINO_STATE[curMino][curRot]:
+                            field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
 
-                            curPos[1] = curPos[1] + 1
+                        curPos[1] += 1
 
-                            field[curPos[0]-1][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'S':
-                            field[curPos[0]-1][curPos[1]] = 0
-                            field[curPos[0]-1][curPos[1]+1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]-1] = 0
-
-                            curPos[1] = curPos[1] + 1
-
-                            field[curPos[0]-1][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]-1][curPos[1]+1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-
-                        elif curMino == 'Z':
-                            field[curPos[0]-1][curPos[1]] = 0
-                            field[curPos[0]-1][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-
-                            curPos[1] = curPos[1] + 1
-
-                            field[curPos[0]-1][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]-1][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'L':
-                            field[curPos[0]-1][curPos[1]+1] = 0
-                            field[curPos[0]][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-
-                            curPos[1] = curPos[1] + 1
-
-                            field[curPos[0]-1][curPos[1]+1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'J':
-                            field[curPos[0]-1][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-
-                            curPos[1] = curPos[1] + 1
-
-                            field[curPos[0]-1][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'O':
-                            field[curPos[0]-1][curPos[1]] = 0
-                            field[curPos[0]-1][curPos[1]+1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-
-                            curPos[1] = curPos[1] + 1
-
-                            field[curPos[0]-1][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]-1][curPos[1]+1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'I':
-                            field[curPos[0]][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-                            field[curPos[0]][curPos[1]+2] = 0
-
-                            curPos[1] = curPos[1] + 1
-
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+2] = MINO_DICT[curMino]
+                        for state in MINO_STATE[curMino][curRot]:
+                            field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
                 except:
                     pass
 
@@ -439,97 +196,14 @@ if __name__ == "__main__":
             else:
                 try:
                     moveDelay = DELAY_V
-                    if not Collide(curMino, [curPos[0] + 1, curPos[1]], curRot):
-                        if curMino == 'T':
-                            field[curPos[0]-1][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
+                    if not Collide(curMino, [curPos[0] + 1, curPos[1]], curRot, False):
+                        for state in MINO_STATE[curMino][curRot]:
+                            field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
 
-                            curPos[0] += 1
+                        curPos[0] += 1
 
-                            field[curPos[0]-1][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'S':
-                            field[curPos[0]-1][curPos[1]] = 0
-                            field[curPos[0]-1][curPos[1]+1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]-1] = 0
-
-                            curPos[0] += 1
-
-                            field[curPos[0]-1][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]-1][curPos[1]+1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-
-                        elif curMino == 'Z':
-                            field[curPos[0]-1][curPos[1]] = 0
-                            field[curPos[0]-1][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-
-                            curPos[0] += 1
-
-                            field[curPos[0]-1][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]-1][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'L':
-                            field[curPos[0]-1][curPos[1]+1] = 0
-                            field[curPos[0]][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-
-                            curPos[0] += 1
-
-                            field[curPos[0]-1][curPos[1]+1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'J':
-                            field[curPos[0]-1][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-
-                            curPos[0] += 1
-
-                            field[curPos[0]-1][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'O':
-                            field[curPos[0]-1][curPos[1]] = 0
-                            field[curPos[0]-1][curPos[1]+1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-
-                            curPos[0] += 1
-
-                            field[curPos[0]-1][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]-1][curPos[1]+1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-
-                        elif curMino == 'I':
-                            field[curPos[0]][curPos[1]-1] = 0
-                            field[curPos[0]][curPos[1]] = 0
-                            field[curPos[0]][curPos[1]+1] = 0
-                            field[curPos[0]][curPos[1]+2] = 0
-
-                            curPos[0] += 1
-
-                            field[curPos[0]][curPos[1]-1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+1] = MINO_DICT[curMino]
-                            field[curPos[0]][curPos[1]+2] = MINO_DICT[curMino]
+                        for state in MINO_STATE[curMino][curRot]:
+                            field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
                 except:
                     pass
         if pressed[pygame.K_SPACE]:
@@ -545,7 +219,7 @@ if __name__ == "__main__":
         rotShadow = curRot
         try:
             while True:
-                if not Collide(curMino, [posShadow[0] + 1, posShadow[1]], rotShadow):
+                if not Collide(curMino, [posShadow[0] + 1, posShadow[1]], rotShadow, False):
                     posShadow[0] += 1
                 else:
                     break
@@ -567,103 +241,14 @@ if __name__ == "__main__":
             elif curMino == 'I':
                 screen.blit(imageShadow[MINO_DICT[curMino]], (180 + 30 * (posShadow[1] - 1), 50 + 30 * (posShadow[0] - 4)))
             if hardDropFlag:
-                if curMino == 'T':
-                    field[curPos[0]-1][curPos[1]] = 0
-                    field[curPos[0]][curPos[1]-1] = 0
-                    field[curPos[0]][curPos[1]] = 0
-                    field[curPos[0]][curPos[1]+1] = 0
-                    field[posShadow[0]-1][posShadow[1]] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]-1] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]+1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]-1][posShadow[1]] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]-1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]+1] = MINO_DICT[curMino]
+                for state in MINO_STATE[curMino][curRot]:
+                    field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
 
-                elif curMino == 'S':
-                    field[curPos[0]-1][curPos[1]] = 0
-                    field[curPos[0]-1][curPos[1]+1] = 0
-                    field[curPos[0]][curPos[1]] = 0
-                    field[curPos[0]][curPos[1]-1] = 0
-                    field[posShadow[0]-1][posShadow[1]] = MINO_DICT[curMino]
-                    field[posShadow[0]-1][posShadow[1]+1] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]-1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]-1][posShadow[1]] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]-1][posShadow[1]+1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]-1] = MINO_DICT[curMino]
+                for state in MINO_STATE[curMino][curRot]:
+                    field[posShadow[0] + state[0]][posShadow[1] + state[1]] = MINO_DICT[curMino]
 
-                elif curMino == 'Z':
-                    field[curPos[0]-1][curPos[1]] = 0
-                    field[curPos[0]-1][curPos[1]-1] = 0
-                    field[curPos[0]][curPos[1]] = 0
-                    field[curPos[0]][curPos[1]+1] = 0
-                    field[posShadow[0]-1][posShadow[1]] = MINO_DICT[curMino]
-                    field[posShadow[0]-1][posShadow[1]-1] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]+1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]-1][posShadow[1]] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]-1][posShadow[1]-1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]+1] = MINO_DICT[curMino]
-
-                elif curMino == 'L':
-                    field[curPos[0]-1][curPos[1]+1] = 0
-                    field[curPos[0]][curPos[1]-1] = 0
-                    field[curPos[0]][curPos[1]] = 0
-                    field[curPos[0]][curPos[1]+1] = 0
-                    field[posShadow[0]-1][posShadow[1]+1] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]-1] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]+1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]-1][posShadow[1]+1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]-1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]+1] = MINO_DICT[curMino]
-
-                elif curMino == 'J':
-                    field[curPos[0]-1][curPos[1]-1] = 0
-                    field[curPos[0]][curPos[1]-1] = 0
-                    field[curPos[0]][curPos[1]] = 0
-                    field[curPos[0]][curPos[1]+1] = 0
-                    field[posShadow[0]-1][posShadow[1]-1] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]-1] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]+1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]-1][posShadow[1]-1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]-1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]+1] = MINO_DICT[curMino]
-
-                elif curMino == 'O':
-                    field[curPos[0]-1][curPos[1]] = 0
-                    field[curPos[0]-1][curPos[1]+1] = 0
-                    field[curPos[0]][curPos[1]] = 0
-                    field[curPos[0]][curPos[1]+1] = 0
-                    field[posShadow[0]-1][posShadow[1]] = MINO_DICT[curMino]
-                    field[posShadow[0]-1][posShadow[1]+1] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]+1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]-1][posShadow[1]] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]-1][posShadow[1]+1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]+1] = MINO_DICT[curMino]
-
-                elif curMino == 'I':
-                    field[curPos[0]][curPos[1]-1] = 0
-                    field[curPos[0]][curPos[1]] = 0
-                    field[curPos[0]][curPos[1]+1] = 0
-                    field[curPos[0]][curPos[1]+2] = 0
-                    field[posShadow[0]][posShadow[1]-1] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]+1] = MINO_DICT[curMino]
-                    field[posShadow[0]][posShadow[1]+2] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]-1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]+1] = MINO_DICT[curMino]
-                    ghostField[posShadow[0]][posShadow[1]+2] = MINO_DICT[curMino]
+                for state in MINO_STATE[curMino][curRot]:
+                    ghostField[posShadow[0] + state[0]][posShadow[1] + state[1]] = MINO_DICT[curMino]
 
                 hardDropFlag = False
                 curMino, curPos, curRot = NextMino()
@@ -682,7 +267,7 @@ if __name__ == "__main__":
 
         moveDelay = moveDelay - 1 if moveDelay > 0 else 0
         dropDelay = dropDelay - 1 if dropDelay > 0 else 0
-        print(curMino, curPos, curRot, minoQueue, moveDelay, dropDelay)
+        print(curMino, curPos, curRot, moveDelay, dropDelay, posShadow)
         pygame.display.flip()
 
     pygame.quit()
