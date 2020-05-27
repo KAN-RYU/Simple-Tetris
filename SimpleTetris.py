@@ -1,7 +1,11 @@
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 from pygame.locals import *
 import random
 import copy
+
+#TODO divide constant into another file, make hold system, line clear
 
 MINO = ['X', 'T', 'S', 'Z', 'L', 'J', 'O', 'I']
 
@@ -81,7 +85,11 @@ SHADOW_ROTATION = {0 : (  0, (0, 0)),
                    1 : (270, (0, 1)),
                    2 : (180, (1, 0)),
                    3 : ( 90, (0, 0))}
-DELAY_V = 2
+SHADOW_ROTATION_I = {0 : (  0, (1, 0)),
+                     1 : (270, (0, 2)),
+                     2 : (180, (2, 0)),
+                     3 : ( 90, (0, 1))}
+DELAY_V = 4
 def NextMinoQueue():
     nextMinoQueue = ['T', 'S', 'Z', 'L', 'J', 'O', 'I']
     return random.sample(nextMinoQueue, 7)
@@ -118,7 +126,9 @@ if __name__ == "__main__":
     
     for i in range(25):
         field[i][10] = 8
+        field[i][11] = 8
         ghostField[i][10] = 8
+        ghostField[i][11] = 8
 
     random.seed(42)
     minoQueue = NextMinoQueue()
@@ -162,7 +172,8 @@ if __name__ == "__main__":
 
     curMino, curPos, curRot = NextMino()
     moveDelay = 0
-    dropDelay = 0
+    softDropDelay = 0
+    hardDropDelay = 0
     spinCWDelay = False
     spinCCWDelay = False
     hardDropFlag = False
@@ -187,7 +198,7 @@ if __name__ == "__main__":
                         for state in MINO_STATE[curMino][curRot]:
                             field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
 
-                        curPos[1] = curPos[1] - 1 if curPos[1] > 0 else 0
+                        curPos[1] = curPos[1] - 1
 
                         for state in MINO_STATE[curMino][curRot]:
                             field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
@@ -254,11 +265,11 @@ if __name__ == "__main__":
             spinCCWDelay = False
 
         if pressed[pygame.K_s]:
-            if moveDelay > 0:
+            if softDropDelay > 0:
                 pass
             else:
                 try:
-                    moveDelay = DELAY_V
+                    softDropDelay = DELAY_V
                     if not Collide(curMino, [curPos[0] + 1, curPos[1]], curRot, curRot, False):
                         for state in MINO_STATE[curMino][curRot]:
                             field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
@@ -269,12 +280,19 @@ if __name__ == "__main__":
                             field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
                 except:
                     pass
+        
+        if not pressed[pygame.K_s]:
+            softDropDelay = 0
+                
         if pressed[pygame.K_SPACE]:
-            if dropDelay > 0:
+            if hardDropDelay > 0:
                 pass
             else:
                 hardDropFlag = True
-                dropDelay = 10
+                hardDropDelay = 10
+        
+        if not pressed[pygame.K_SPACE]:
+            hardDropDelay = 0
 
         screen.blit(imageBackground, (0, 0))
 
@@ -291,8 +309,8 @@ if __name__ == "__main__":
         finally:
             if curMino == 'I':
                 screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curMino]], SHADOW_ROTATION[curRot][0]),
-                            (180 + 30 * (posShadow[1] - 1 + SHADOW_ROTATION[curRot][1][1]),
-                             50 + 30 * (posShadow[0] - 5 + SHADOW_ROTATION[curRot][1][0])))
+                            (180 + 30 * (posShadow[1] - 1 + SHADOW_ROTATION_I[curRot][1][1]),
+                             50 + 30 * (posShadow[0] - 5 + SHADOW_ROTATION_I[curRot][1][0])))
             elif curMino == 'O':
                 screen.blit(imageShadow[MINO_DICT[curMino]], (180 + 30 * (posShadow[1] - 0), 50 + 30 * (posShadow[0] - 5)))
             else:
@@ -325,7 +343,8 @@ if __name__ == "__main__":
                     screen.blit(imageBlock[field[i][j]], (180 + 30 * j, 50 + 30 * (i - 4)))
 
         moveDelay = moveDelay - 1 if moveDelay > 0 else 0
-        dropDelay = dropDelay - 1 if dropDelay > 0 else 0
+        hardDropDelay = hardDropDelay - 1 if hardDropDelay > 0 else 0
+        softDropDelay = softDropDelay -1 if softDropDelay > 0 else 0
         # print(curMino, curPos, curRot, moveDelay, dropDelay, posShadow)
         pygame.display.flip()
 
