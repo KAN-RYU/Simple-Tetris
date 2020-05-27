@@ -54,9 +54,9 @@ MINO_STATE = {'T' : [((-1,  0), ( 0, -1), ( 0,  0), ( 0,  1)),
                      (( 0, -1), ( 0,  0), ( 1,  0), ( 1,  1)),
                      ((-1,  0), ( 0, -1), ( 0,  0), ( 1, -1))],
               'L' : [((-1,  1), ( 0, -1), ( 0,  0), ( 0,  1)),
-                     ((-1,  0), ( 0,  0), ( 0,  1), ( 1,  1)),
+                     ((-1,  0), ( 0,  0), ( 1,  0), ( 1,  1)),
                      (( 0, -1), ( 0,  0), ( 0,  1), ( 1, -1)),
-                     ((-1, -1), ( 0, -1), ( 0,  0), ( 1,  0))],
+                     ((-1, -1), (-1,  0), ( 0,  0), ( 1,  0))],
               'J' : [((-1, -1), ( 0, -1), ( 0,  0), ( 0,  1)),
                      ((-1,  0), (-1,  1), ( 0,  0), ( 1,  0)),
                      (( 0, -1), ( 0,  0), ( 0,  1), ( 1,  1)),
@@ -77,7 +77,11 @@ WALL_KICK = {'X' : [[(), ((0, 0), (0, -1), (-1, -1), (2, 0), (2, -1)), (), ((0, 
                     [((0, 0), (0, 2), (0, -1), (1, -2), (2, -1)), (), ((0,0), (0, -1), (0, 2), (-2, 1), (1, 2)), ()],
                     [(), ((0,0), (0, 1), (0, -2), (-2, -1), (1, -2)), (), ((0, 0), (0, 2), (0, -1), (1, -2), (2, -1))],
                     [((0,0), (0, 1), (0, -2), (-2, -1), (1, -2)), (), ((0, 0), (0, -2), (0, 1), (1, -2), (-2, 1)), ()]]}
-DELAY_V = 4
+SHADOW_ROTATION = {0 : (  0, (0, 0)),
+                   1 : (270, (0, 1)),
+                   2 : (180, (1, 0)),
+                   3 : ( 90, (0, 0))}
+DELAY_V = 2
 def NextMinoQueue():
     nextMinoQueue = ['T', 'S', 'Z', 'L', 'J', 'O', 'I']
     return random.sample(nextMinoQueue, 7)
@@ -106,11 +110,15 @@ if __name__ == "__main__":
 
     field = []
     for i in range(25):
-        field.append([0]*10)
+        field.append([0]*12)
 
     ghostField = []
     for i in range(25):
-        ghostField.append([0]*10)
+        ghostField.append([0]*12)
+    
+    for i in range(25):
+        field[i][10] = 8
+        ghostField[i][10] = 8
 
     random.seed(42)
     minoQueue = NextMinoQueue()
@@ -129,22 +137,35 @@ if __name__ == "__main__":
             field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
         return curMino, curPos, curRot
 
-    def Collide(mino, pos, rot, kick):
-        if pos[0] > 25 or pos [1] < 0 or pos[1] > 9:
+    def Collide(mino, pos, rot, newrot, kick):
+        if not mino == 'I' and (pos[0] > 25 or pos [1] < 0 or pos[1] > 9):
             raise
         collideFlag = True
-        for state in MINO_STATE[mino][rot]:
-            if pos[1] + state[1] < 0:
-                collideFlag = False
-            collideFlag = collideFlag and (ghostField[pos[0] + state[0]][pos[1] + state[1]] == 0)
+        if kick:
+            for test in WALL_KICK['I' if mino == 'I' else 'X'][rot][newrot]:
+                collideFlag = True
+                newPos = [pos[0] + test[0], pos[1] + test[1]]
+                for state in MINO_STATE[mino][newrot]:
+                    if newPos[1] + state[1] < 0:
+                        collideFlag = False
+                    collideFlag = collideFlag and (ghostField[newPos[0] + state[0]][newPos[1] + state[1]] == 0)
+                if collideFlag:
+                    return newPos, newrot
+            return pos, rot
+        else:
+            for state in MINO_STATE[mino][rot]:
+                if not mino == 'I' and pos[1] + state[1] < 0:
+                    collideFlag = False
+                collideFlag = collideFlag and (ghostField[pos[0] + state[0]][pos[1] + state[1]] == 0)
 
-        return not collideFlag
+            return not collideFlag
 
     curMino, curPos, curRot = NextMino()
     moveDelay = 0
     dropDelay = 0
+    spinCWDelay = False
+    spinCCWDelay = False
     hardDropFlag = False
-
 
     while not done:
 
@@ -157,12 +178,12 @@ if __name__ == "__main__":
         #Processing key input
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_a]:
-            if moveDelay > 0:
-                pass
+            if moveDelay > 1 or moveDelay == 0:
+                moveDelay = 2
             else:
                 try:
                     moveDelay = DELAY_V
-                    if not Collide(curMino, [curPos[0], curPos[1] - 1], curRot, False):
+                    if not Collide(curMino, [curPos[0], curPos[1] - 1], curRot, curRot, False):
                         for state in MINO_STATE[curMino][curRot]:
                             field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
 
@@ -173,13 +194,13 @@ if __name__ == "__main__":
                 except:
                     pass
 
-        if pressed[pygame.K_d]:
-            if moveDelay > 0:
-                pass
+        elif pressed[pygame.K_d]:
+            if moveDelay > 1 or moveDelay == 0:
+                moveDelay = 2
             else:
                 try:
                     moveDelay = DELAY_V
-                    if not Collide(curMino, [curPos[0], curPos[1] + 1], curRot, False):
+                    if not Collide(curMino, [curPos[0], curPos[1] + 1], curRot, curRot, False):
                         for state in MINO_STATE[curMino][curRot]:
                             field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
 
@@ -190,13 +211,55 @@ if __name__ == "__main__":
                 except:
                     pass
 
+        if pressed[pygame.K_j]:
+            if spinCWDelay:
+                pass
+            else:
+                try:
+                    spinCWDelay = True
+                    newPos, newRot =  Collide(curMino, curPos, curRot, (curRot + 1) % 4, True)
+                    for state in MINO_STATE[curMino][curRot]:
+                            field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
+
+                    curPos = copy.deepcopy(newPos)
+                    curRot = newRot
+
+                    for state in MINO_STATE[curMino][curRot]:
+                        field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
+                except:
+                    pass
+                        
+        if not pressed[pygame.K_j]:
+            spinCWDelay = False
+        
+        if pressed[pygame.K_k]:
+            if spinCCWDelay:
+                pass
+            else:
+                try:
+                    spinCCWDelay = True
+                    newPos, newRot =  Collide(curMino, curPos, curRot, (curRot - 1) % 4, True)
+                    for state in MINO_STATE[curMino][curRot]:
+                            field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
+
+                    curPos = copy.deepcopy(newPos)
+                    curRot = newRot
+
+                    for state in MINO_STATE[curMino][curRot]:
+                        field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
+                except:
+                    pass
+                        
+        if not pressed[pygame.K_k]:
+            spinCCWDelay = False
+
         if pressed[pygame.K_s]:
             if moveDelay > 0:
                 pass
             else:
                 try:
                     moveDelay = DELAY_V
-                    if not Collide(curMino, [curPos[0] + 1, curPos[1]], curRot, False):
+                    if not Collide(curMino, [curPos[0] + 1, curPos[1]], curRot, curRot, False):
                         for state in MINO_STATE[curMino][curRot]:
                             field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
 
@@ -219,27 +282,23 @@ if __name__ == "__main__":
         rotShadow = curRot
         try:
             while True:
-                if not Collide(curMino, [posShadow[0] + 1, posShadow[1]], rotShadow, False):
+                if not Collide(curMino, [posShadow[0] + 1, posShadow[1]], rotShadow, curRot, False):
                     posShadow[0] += 1
                 else:
                     break
         except:
             pass
         finally:
-            if curMino == 'T':
-                screen.blit(imageShadow[MINO_DICT[curMino]], (180 + 30 * (posShadow[1] - 1), 50 + 30 * (posShadow[0] - 5)))
-            elif curMino == 'S':
-                screen.blit(imageShadow[MINO_DICT[curMino]], (180 + 30 * (posShadow[1] - 1), 50 + 30 * (posShadow[0] - 5)))
-            elif curMino == 'Z':
-                screen.blit(imageShadow[MINO_DICT[curMino]], (180 + 30 * (posShadow[1] - 1), 50 + 30 * (posShadow[0] - 5)))
-            elif curMino == 'L':
-                screen.blit(imageShadow[MINO_DICT[curMino]], (180 + 30 * (posShadow[1] - 1), 50 + 30 * (posShadow[0] - 5)))
-            elif curMino == 'J':
-                screen.blit(imageShadow[MINO_DICT[curMino]], (180 + 30 * (posShadow[1] - 1), 50 + 30 * (posShadow[0] - 5)))
+            if curMino == 'I':
+                screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curMino]], SHADOW_ROTATION[curRot][0]),
+                            (180 + 30 * (posShadow[1] - 1 + SHADOW_ROTATION[curRot][1][1]),
+                             50 + 30 * (posShadow[0] - 5 + SHADOW_ROTATION[curRot][1][0])))
             elif curMino == 'O':
                 screen.blit(imageShadow[MINO_DICT[curMino]], (180 + 30 * (posShadow[1] - 0), 50 + 30 * (posShadow[0] - 5)))
-            elif curMino == 'I':
-                screen.blit(imageShadow[MINO_DICT[curMino]], (180 + 30 * (posShadow[1] - 1), 50 + 30 * (posShadow[0] - 4)))
+            else:
+                screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curMino]], SHADOW_ROTATION[curRot][0]),
+                            (180 + 30 * (posShadow[1] - 1 + SHADOW_ROTATION[curRot][1][1]),
+                             50 + 30 * (posShadow[0] - 5 + SHADOW_ROTATION[curRot][1][0])))
             if hardDropFlag:
                 for state in MINO_STATE[curMino][curRot]:
                     field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
@@ -267,7 +326,7 @@ if __name__ == "__main__":
 
         moveDelay = moveDelay - 1 if moveDelay > 0 else 0
         dropDelay = dropDelay - 1 if dropDelay > 0 else 0
-        print(curMino, curPos, curRot, moveDelay, dropDelay, posShadow)
+        # print(curMino, curPos, curRot, moveDelay, dropDelay, posShadow)
         pygame.display.flip()
 
     pygame.quit()
