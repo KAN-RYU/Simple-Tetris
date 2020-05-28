@@ -1,0 +1,1 @@
+pyinstaller --onefile --noconsole .\SimpleTetris.py --hidden-import=pkg_resources.py2_warn
