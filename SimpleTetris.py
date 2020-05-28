@@ -4,101 +4,8 @@ import pygame
 from pygame.locals import *
 import random
 import copy
+from SimpleTetrisConstant import *
 
-#TODO divide constant into another file, make hold system, line clear
-
-MINO = ['X', 'T', 'S', 'Z', 'L', 'J', 'O', 'I']
-
-MINO_DICT = {'T' : 1,
-             'S' : 2,
-             'Z' : 3,
-             'L' : 4,
-             'J' : 5,
-             'O' : 6,
-             'I' : 7,}
-
-IMAGE_MINO = ['',
-              './Sprite/TMino.png',
-              './Sprite/SMino.png',
-              './Sprite/ZMino.png',
-              './Sprite/LMino.png',
-              './Sprite/JMino.png',
-              './Sprite/OMino.png',
-              './Sprite/IMino.png',]
-
-IMAGE_NEXT_MINO = ['',
-              './Sprite/NextTMino.png',
-              './Sprite/NextSMino.png',
-              './Sprite/NextZMino.png',
-              './Sprite/NextLMino.png',
-              './Sprite/NextJMino.png',
-              './Sprite/NextOMino.png',
-              './Sprite/NextIMino.png',]
-
-IMAGE_BLOCK = ['',
-               './Sprite/TBlock.png',
-               './Sprite/SBlock.png',
-               './Sprite/ZBlock.png',
-               './Sprite/LBlock.png',
-               './Sprite/JBlock.png',
-               './Sprite/OBlock.png',
-               './Sprite/IBlock.png',]
-
-IMAGE_SHADOW = ['',
-                './Sprite/TMino_shadow.png',
-                './Sprite/SMino_shadow.png',
-                './Sprite/ZMino_shadow.png',
-                './Sprite/LMino_shadow.png',
-                './Sprite/JMino_shadow.png',
-                './Sprite/OMino_shadow.png',
-                './Sprite/IMino_shadow.png',]
-
-BACKGROUND = './Sprite/Background.png'
-MINO_STATE = {'T' : [((-1,  0), ( 0, -1), ( 0,  0), ( 0,  1)),
-                     ((-1,  0), ( 0,  0), ( 0,  1), ( 1,  0)),
-                     (( 0, -1), ( 0,  0), ( 0,  1), ( 1,  0)),
-                     ((-1,  0), ( 0, -1), ( 0,  0), ( 1,  0))],
-              'S' : [((-1,  0), (-1,  1), ( 0, -1), ( 0,  0)),
-                     ((-1,  0), ( 0,  0), ( 0,  1), ( 1,  1)),
-                     (( 0,  0), ( 0,  1), ( 1, -1), ( 1,  0)),
-                     ((-1, -1), ( 0, -1), ( 0,  0), ( 1,  0))],
-              'Z' : [((-1, -1), (-1,  0), ( 0,  0), ( 0,  1)),
-                     ((-1,  1), ( 0,  0), ( 0,  1), ( 1,  0)),
-                     (( 0, -1), ( 0,  0), ( 1,  0), ( 1,  1)),
-                     ((-1,  0), ( 0, -1), ( 0,  0), ( 1, -1))],
-              'L' : [((-1,  1), ( 0, -1), ( 0,  0), ( 0,  1)),
-                     ((-1,  0), ( 0,  0), ( 1,  0), ( 1,  1)),
-                     (( 0, -1), ( 0,  0), ( 0,  1), ( 1, -1)),
-                     ((-1, -1), (-1,  0), ( 0,  0), ( 1,  0))],
-              'J' : [((-1, -1), ( 0, -1), ( 0,  0), ( 0,  1)),
-                     ((-1,  0), (-1,  1), ( 0,  0), ( 1,  0)),
-                     (( 0, -1), ( 0,  0), ( 0,  1), ( 1,  1)),
-                     ((-1,  0), ( 0,  0), ( 1,  0), ( 1, -1))],
-              'O' : [((-1,  0), (-1,  1), ( 0,  0), ( 0,  1)),
-                     ((-1,  0), (-1,  1), ( 0,  0), ( 0,  1)),
-                     ((-1,  0), (-1,  1), ( 0,  0), ( 0,  1)),
-                     ((-1,  0), (-1,  1), ( 0,  0), ( 0,  1))],
-              'I' : [(( 0, -1), ( 0,  0), ( 0,  1), ( 0,  2)),
-                     ((-1,  1), ( 0,  1), ( 1,  1), ( 2,  1)),
-                     (( 1, -1), ( 1,  0), ( 1,  1), ( 1,  2)),
-                     ((-1,  0), ( 0,  0), ( 1,  0), ( 2,  0))],}
-WALL_KICK = {'X' : [[(), ((0, 0), (0, -1), (-1, -1), (2, 0), (2, -1)), (), ((0, 0), (0, 1), (-1, 1), (2, 0), (2, 1))],
-                    [((0, 0), (0, 1), (1, 1), (-2, 0), (-2, 1)), (), ((0, 0), (0, 1), (1, 1), (-2, 0), (-2, 1)), ()],
-                    [(), ((0, 0), (0, -1), (-1, -1), (2, 0), (2, -1)), (), ((0, 0), (0, 1), (-1, 1), (2, 0), (2, 1))],
-                    [((0, 0), (0, -1), (1, -1), (-2, 0), (-2, -1)), (), ((0, 0), (0, -1), (1, -1), (-2, 0), (-2, -1)), ()]],
-             'I' : [[(), ((0, 0), (0, -2), (0, 1), (1, -2), (-2, 1)), (), ((0, 0), (0, -1), (0, 2), (-2, -1), (1, 2))],
-                    [((0, 0), (0, 2), (0, -1), (1, -2), (2, -1)), (), ((0,0), (0, -1), (0, 2), (-2, 1), (1, 2)), ()],
-                    [(), ((0,0), (0, 1), (0, -2), (-2, -1), (1, -2)), (), ((0, 0), (0, 2), (0, -1), (1, -2), (2, -1))],
-                    [((0,0), (0, 1), (0, -2), (-2, -1), (1, -2)), (), ((0, 0), (0, -2), (0, 1), (1, -2), (-2, 1)), ()]]}
-SHADOW_ROTATION = {0 : (  0, (0, 0)),
-                   1 : (270, (0, 1)),
-                   2 : (180, (1, 0)),
-                   3 : ( 90, (0, 0))}
-SHADOW_ROTATION_I = {0 : (  0, (1, 0)),
-                     1 : (270, (0, 2)),
-                     2 : (180, (2, 0)),
-                     3 : ( 90, (0, 1))}
-DELAY_V = 4
 def NextMinoQueue():
     nextMinoQueue = ['T', 'S', 'Z', 'L', 'J', 'O', 'I']
     return random.sample(nextMinoQueue, 7)
@@ -135,7 +42,7 @@ if __name__ == "__main__":
     ghostField = []
     for i in range(25):
         ghostField.append([0]*12)
-    
+
     for i in range(25):
         field[i][10] = 8
         field[i][11] = 8
@@ -245,7 +152,7 @@ if __name__ == "__main__":
                             field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
                 except:
                     pass
-        
+
         elif not pressed[pygame.K_k] or not pressed[pygame.K_d]:
             moveDelay = 0
 
@@ -267,10 +174,10 @@ if __name__ == "__main__":
                         field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
                 except:
                     pass
-                        
+
         if not pressed[pygame.K_j]:
             spinCWDelay = False
-        
+
         if pressed[pygame.K_l]:
             if spinCCWDelay or clearDelay > 0:
                 pass
@@ -288,10 +195,10 @@ if __name__ == "__main__":
                         field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
                 except:
                     pass
-                        
+
         if not pressed[pygame.K_l]:
             spinCCWDelay = False
-        
+
         #Hold Function
         if pressed[pygame.K_k]:
             if holdDelay or clearDelay > 0:
@@ -337,10 +244,10 @@ if __name__ == "__main__":
                         softDropFlag = True
                 except:
                     softDropFlag = True
-        
+
         if not pressed[pygame.K_s]:
             softDropDelay = 0
-        
+
         #Hard Drop
         if pressed[pygame.K_SPACE]:
             if hardDropDelay > 0 or clearDelay > 0:
@@ -348,7 +255,7 @@ if __name__ == "__main__":
             else:
                 hardDropFlag = True
                 hardDropDelay = 10
-        
+
         if not pressed[pygame.K_SPACE]:
             hardDropDelay = 0
 
@@ -380,7 +287,7 @@ if __name__ == "__main__":
         if softDropFlag or hardDropFlag:
             holdDelay = False
             lineClearFlag = True
-            
+
         if hardDropFlag:
             for state in MINO_STATE[curMino][curRot]:
                 field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
@@ -393,15 +300,15 @@ if __name__ == "__main__":
 
             hardDropFlag = False
             softDropFlag = False
-        
+
         if softDropFlag:
             for state in MINO_STATE[curMino][curRot]:
                 field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
                 ghostField[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
-            
+
             hardDropFlag = False
             softDropFlag = False
-        
+
         if lineClearFlag:
             lineCleared = 0
             for i in range(4, 25):
@@ -420,7 +327,7 @@ if __name__ == "__main__":
                 clearDelay = 10
             else:
                 curMino, curPos, curRot = NextMino()
-        
+
         if clearDelay == 1:
             flag = False
             for i in range(24):
@@ -444,9 +351,9 @@ if __name__ == "__main__":
                             ghostField[k][j] = ghostField[k - 1][j]
                     i += 1
                 i -= 1
-                
+
             curMino, curPos, curRot = NextMino()
-                        
+
 
         if len(minoQueue) < 6:
             for i in NextMinoQueue():
@@ -454,11 +361,15 @@ if __name__ == "__main__":
 
         for i in range(5):
             screen.blit(imageNextMino[MINO_DICT[minoQueue[i]]], (510 + 10, 110 + 10 + 90 * i))
-        
+
         if curHold != 0:
             size = imageMino[MINO_DICT[curHold]].get_rect().size
             screen.blit(imageMino[MINO_DICT[curHold]], (100 - size[0] // 2, 175 - size[1] // 2))
-            
+
+        if holdDelay:
+            s = pygame.Surface((130, 130), pygame.SRCALPHA)
+            s.fill((0, 0, 0, 128))
+            screen.blit(s, (35, 110))
 
         for i in range(4, 25):
             for j in range(10):
