@@ -26,6 +26,15 @@ IMAGE_MINO = ['',
               './Sprite/OMino.png',
               './Sprite/IMino.png',]
 
+IMAGE_NEXT_MINO = ['',
+              './Sprite/NextTMino.png',
+              './Sprite/NextSMino.png',
+              './Sprite/NextZMino.png',
+              './Sprite/NextLMino.png',
+              './Sprite/NextJMino.png',
+              './Sprite/NextOMino.png',
+              './Sprite/NextIMino.png',]
+
 IMAGE_BLOCK = ['',
                './Sprite/TBlock.png',
                './Sprite/SBlock.png',
@@ -109,6 +118,9 @@ if __name__ == "__main__":
     imageMino = ['']
     for i in range(1, 8):
         imageMino.append(pygame.image.load(IMAGE_MINO[i]))
+    imageNextMino = ['']
+    for i in range(1, 8):
+        imageNextMino.append(pygame.image.load(IMAGE_NEXT_MINO[i]))
     imageBlock = ['']
     for i in range(1, 8):
         imageBlock.append(pygame.image.load(IMAGE_BLOCK[i]))
@@ -171,11 +183,16 @@ if __name__ == "__main__":
             return not collideFlag
 
     curMino, curPos, curRot = NextMino()
+    curHold = 0
     moveDelay = 0
     softDropDelay = 0
     hardDropDelay = 0
+    clearDelay = 0
+    lineClearFlag = False
     spinCWDelay = False
     spinCCWDelay = False
+    holdDelay = False
+    softDropFlag = False
     hardDropFlag = False
 
     while not done:
@@ -187,9 +204,10 @@ if __name__ == "__main__":
                 done = True
 
         #Processing key input
+        #Shift movement
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_a]:
-            if moveDelay > 1 or moveDelay == 0:
+            if moveDelay > 1 or moveDelay == 0 or clearDelay > 0:
                 moveDelay = 2
             else:
                 try:
@@ -206,7 +224,7 @@ if __name__ == "__main__":
                     pass
 
         elif pressed[pygame.K_d]:
-            if moveDelay > 1 or moveDelay == 0:
+            if moveDelay > 1 or moveDelay == 0 or clearDelay > 0:
                 moveDelay = 2
             else:
                 try:
@@ -222,8 +240,9 @@ if __name__ == "__main__":
                 except:
                     pass
 
+        #Spin Movement
         if pressed[pygame.K_j]:
-            if spinCWDelay:
+            if spinCWDelay or clearDelay > 0:
                 pass
             else:
                 try:
@@ -243,8 +262,8 @@ if __name__ == "__main__":
         if not pressed[pygame.K_j]:
             spinCWDelay = False
         
-        if pressed[pygame.K_k]:
-            if spinCCWDelay:
+        if pressed[pygame.K_l]:
+            if spinCCWDelay or clearDelay > 0:
                 pass
             else:
                 try:
@@ -261,11 +280,38 @@ if __name__ == "__main__":
                 except:
                     pass
                         
-        if not pressed[pygame.K_k]:
+        if not pressed[pygame.K_l]:
             spinCCWDelay = False
+        
+        #Hold Function
+        if pressed[pygame.K_k]:
+            if holdDelay or clearDelay > 0:
+                pass
+            else:
+                holdDelay = True
+                if curHold == 0:
+                    curHold = curMino
+                    for state in MINO_STATE[curMino][curRot]:
+                        field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
 
+                    curMino, curPos, curRot = NextMino()
+                else:
+                    for state in MINO_STATE[curMino][curRot]:
+                        field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
+                    tmp = curMino
+                    curMino = curHold
+                    curHold = tmp
+                    curRot = 0
+                    if curMino == 'I':
+                        curPos = [4, 4]
+                    else:
+                        curPos = [5, 4]
+                    for state in MINO_STATE[curMino][curRot]:
+                        field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
+
+        #Soft Drop
         if pressed[pygame.K_s]:
-            if softDropDelay > 0:
+            if softDropDelay > 0 or clearDelay > 0:
                 pass
             else:
                 try:
@@ -278,14 +324,17 @@ if __name__ == "__main__":
 
                         for state in MINO_STATE[curMino][curRot]:
                             field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
+                    else:
+                        softDropFlag = True
                 except:
-                    pass
+                    softDropFlag = True
         
         if not pressed[pygame.K_s]:
             softDropDelay = 0
-                
+        
+        #Hard Drop
         if pressed[pygame.K_SPACE]:
-            if hardDropDelay > 0:
+            if hardDropDelay > 0 or clearDelay > 0:
                 pass
             else:
                 hardDropFlag = True
@@ -294,6 +343,7 @@ if __name__ == "__main__":
         if not pressed[pygame.K_SPACE]:
             hardDropDelay = 0
 
+        #Draw Screen
         screen.blit(imageBackground, (0, 0))
 
         posShadow = copy.deepcopy(curPos)
@@ -317,25 +367,88 @@ if __name__ == "__main__":
                 screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curMino]], SHADOW_ROTATION[curRot][0]),
                             (180 + 30 * (posShadow[1] - 1 + SHADOW_ROTATION[curRot][1][1]),
                              50 + 30 * (posShadow[0] - 5 + SHADOW_ROTATION[curRot][1][0])))
-            if hardDropFlag:
-                for state in MINO_STATE[curMino][curRot]:
-                    field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
+        if softDropFlag or hardDropFlag:
+            holdDelay = False
+            lineClearFlag = True
+            
+        if hardDropFlag:
+            for state in MINO_STATE[curMino][curRot]:
+                field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
 
-                for state in MINO_STATE[curMino][curRot]:
-                    field[posShadow[0] + state[0]][posShadow[1] + state[1]] = MINO_DICT[curMino]
+            for state in MINO_STATE[curMino][curRot]:
+                field[posShadow[0] + state[0]][posShadow[1] + state[1]] = MINO_DICT[curMino]
 
-                for state in MINO_STATE[curMino][curRot]:
-                    ghostField[posShadow[0] + state[0]][posShadow[1] + state[1]] = MINO_DICT[curMino]
+            for state in MINO_STATE[curMino][curRot]:
+                ghostField[posShadow[0] + state[0]][posShadow[1] + state[1]] = MINO_DICT[curMino]
 
-                hardDropFlag = False
+            hardDropFlag = False
+            softDropFlag = False
+        
+        if softDropFlag:
+            for state in MINO_STATE[curMino][curRot]:
+                field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
+                ghostField[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
+            
+            hardDropFlag = False
+            softDropFlag = False
+        
+        if lineClearFlag:
+            lineCleared = 0
+            for i in range(4, 25):
+                fullLine = True
+                for j in range(10):
+                    fullLine = False if field[i][j] == 0 else fullLine
+                if fullLine:
+                    lineCleared += 1
+                    for j in range(10):
+                        field[i][j] = 0
+                        ghostField[i][j] = 0
+            lineClearFlag = False
+            clearDelay = 0
+            if lineCleared != 0:
+                print(lineCleared, "Line Clear")
+                clearDelay = 10
+            else:
                 curMino, curPos, curRot = NextMino()
+        
+        if clearDelay == 1:
+            flag = False
+            for i in range(24):
+                for j in range(10):
+                    if field[i][j] != 0:
+                        flag = True
+                        break
+                if flag:
+                    break
+            top = i
+            i = 24
+            while i >= top:
+                emptyLine = True
+                for j in range(10):
+                    emptyLine = False if field[i][j] != 0 else emptyLine
+                if emptyLine:
+                    top += 1
+                    for k in range(i, 2, -1):
+                        for j in range(10):
+                            field[k][j] = field[k - 1][j]
+                            ghostField[k][j] = ghostField[k - 1][j]
+                    i += 1
+                i -= 1
+                
+            curMino, curPos, curRot = NextMino()
+                        
 
-        if len(minoQueue) < 4:
+        if len(minoQueue) < 6:
             for i in NextMinoQueue():
                 minoQueue.append(i)
 
-        for i in range(4):
-            screen.blit(imageMino[MINO_DICT[minoQueue[i]]], (510, 110 + 130 * i))
+        for i in range(5):
+            screen.blit(imageNextMino[MINO_DICT[minoQueue[i]]], (510 + 10, 110 + 10 + 90 * i))
+        
+        if curHold != 0:
+            size = imageMino[MINO_DICT[curHold]].get_rect().size
+            screen.blit(imageMino[MINO_DICT[curHold]], (100 - size[0] // 2, 175 - size[1] // 2))
+            
 
         for i in range(4, 25):
             for j in range(10):
@@ -344,7 +457,8 @@ if __name__ == "__main__":
 
         moveDelay = moveDelay - 1 if moveDelay > 0 else 0
         hardDropDelay = hardDropDelay - 1 if hardDropDelay > 0 else 0
-        softDropDelay = softDropDelay -1 if softDropDelay > 0 else 0
+        softDropDelay = softDropDelay - 1 if softDropDelay > 0 else 0
+        clearDelay = clearDelay - 1 if clearDelay > 0 else 0
         # print(curMino, curPos, curRot, moveDelay, dropDelay, posShadow)
         pygame.display.flip()
 
