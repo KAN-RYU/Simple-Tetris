@@ -207,11 +207,14 @@ if __name__ == "__main__":
         #Shift movement
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_a]:
-            if moveDelay > 1 or moveDelay == 0 or clearDelay > 0:
-                moveDelay = 2
+            if moveDelay > 2 or clearDelay > 0:
+                pass
             else:
                 try:
-                    moveDelay = DELAY_V
+                    if moveDelay == 0:
+                        moveDelay = 7
+                    else :
+                        moveDelay = DELAY_V
                     if not Collide(curMino, [curPos[0], curPos[1] - 1], curRot, curRot, False):
                         for state in MINO_STATE[curMino][curRot]:
                             field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
@@ -224,11 +227,14 @@ if __name__ == "__main__":
                     pass
 
         elif pressed[pygame.K_d]:
-            if moveDelay > 1 or moveDelay == 0 or clearDelay > 0:
-                moveDelay = 2
+            if moveDelay > 2 or clearDelay > 0:
+                pass
             else:
                 try:
-                    moveDelay = DELAY_V
+                    if moveDelay == 0:
+                        moveDelay = 7
+                    else :
+                        moveDelay = DELAY_V
                     if not Collide(curMino, [curPos[0], curPos[1] + 1], curRot, curRot, False):
                         for state in MINO_STATE[curMino][curRot]:
                             field[curPos[0] + state[0]][curPos[1] + state[1]] = 0
@@ -239,6 +245,9 @@ if __name__ == "__main__":
                             field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
                 except:
                     pass
+        
+        elif not pressed[pygame.K_k] or not pressed[pygame.K_d]:
+            moveDelay = 0
 
         #Spin Movement
         if pressed[pygame.K_j]:
@@ -357,16 +366,17 @@ if __name__ == "__main__":
         except:
             pass
         finally:
-            if curMino == 'I':
-                screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curMino]], SHADOW_ROTATION[curRot][0]),
-                            (180 + 30 * (posShadow[1] - 1 + SHADOW_ROTATION_I[curRot][1][1]),
-                             50 + 30 * (posShadow[0] - 5 + SHADOW_ROTATION_I[curRot][1][0])))
-            elif curMino == 'O':
-                screen.blit(imageShadow[MINO_DICT[curMino]], (180 + 30 * (posShadow[1] - 0), 50 + 30 * (posShadow[0] - 5)))
-            else:
-                screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curMino]], SHADOW_ROTATION[curRot][0]),
-                            (180 + 30 * (posShadow[1] - 1 + SHADOW_ROTATION[curRot][1][1]),
-                             50 + 30 * (posShadow[0] - 5 + SHADOW_ROTATION[curRot][1][0])))
+            if clearDelay == 0:
+                if curMino == 'I':
+                    screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curMino]], SHADOW_ROTATION[curRot][0]),
+                                (180 + 30 * (posShadow[1] - 1 + SHADOW_ROTATION_I[curRot][1][1]),
+                                50 + 30 * (posShadow[0] - 5 + SHADOW_ROTATION_I[curRot][1][0])))
+                elif curMino == 'O':
+                    screen.blit(imageShadow[MINO_DICT[curMino]], (180 + 30 * (posShadow[1] - 0), 50 + 30 * (posShadow[0] - 5)))
+                else:
+                    screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curMino]], SHADOW_ROTATION[curRot][0]),
+                                (180 + 30 * (posShadow[1] - 1 + SHADOW_ROTATION[curRot][1][1]),
+                                50 + 30 * (posShadow[0] - 5 + SHADOW_ROTATION[curRot][1][0])))
         if softDropFlag or hardDropFlag:
             holdDelay = False
             lineClearFlag = True
@@ -459,7 +469,7 @@ if __name__ == "__main__":
         hardDropDelay = hardDropDelay - 1 if hardDropDelay > 0 else 0
         softDropDelay = softDropDelay - 1 if softDropDelay > 0 else 0
         clearDelay = clearDelay - 1 if clearDelay > 0 else 0
-        # print(curMino, curPos, curRot, moveDelay, dropDelay, posShadow)
+        # print(curMino, curPos, curRot, moveDelay, softDropDelay, hardDropDelay)
         pygame.display.flip()
 
     pygame.quit()
