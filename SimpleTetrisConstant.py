@@ -53,6 +53,18 @@ IMAGE_BUTTON = ['./Sprite/SinglePlayButtonOn.png',
                 './Sprite/ExitButtonOn.png',
                 './Sprite/ExitButtonDown.png']
 
+IMAGE_CLEAR = ['./Sprite/ClearSingle.png',
+               './Sprite/ClearSingleTspin.png',
+               './Sprite/ClearSingleBTBTspin.png',
+               './Sprite/ClearDouble.png',
+               './Sprite/ClearDoubleTspin.png',
+               './Sprite/ClearDoubleBTBTspin.png',
+               './Sprite/ClearTriple.png',
+               './Sprite/ClearTripleTspin.png',
+               './Sprite/ClearTripleBTBTspin.png',
+               './Sprite/ClearTetris.png',
+               './Sprite/ClearTetrisBTB.png',]
+
 BACKGROUND = './Sprite/Background.png'
 MINO_STATE = {'T' : [((-1,  0), ( 0, -1), ( 0,  0), ( 0,  1)),
                      ((-1,  0), ( 0,  0), ( 0,  1), ( 1,  0)),

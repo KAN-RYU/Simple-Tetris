@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     done = False
     clock = pygame.time.Clock()
-    
+
     singlePlayFlag = False
     multiPlayFlag = False
     menuFlag = True
@@ -40,7 +40,10 @@ if __name__ == "__main__":
     imageShadow = ['']
     for i in range(1, 8):
         imageShadow.append(pygame.image.load(resource_path(IMAGE_SHADOW[i])))
-        
+    imageClear = []
+    for i in range(11):
+        imageClear.append(pygame.image.load(resource_path(IMAGE_CLEAR[i])))
+
     while not done:
         #Menu Block
         if menuFlag:
@@ -49,7 +52,7 @@ if __name__ == "__main__":
             exitOver = False
         while menuFlag:
             clock.tick(60)
-            
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     done = True
@@ -87,7 +90,7 @@ if __name__ == "__main__":
                         elif event.pos[1] >= 569 and event.pos[1] <= 690:
                             menuFlag = False
                             done = True
-                    
+
             screen.blit(imageMenu, (0, 0))
             if singleOver:
                 screen.blit(imageButton[0], (74, 277))
@@ -101,7 +104,7 @@ if __name__ == "__main__":
                 screen.blit(imageButton[4], (74, 569))
             else:
                 screen.blit(imageButton[5], (74, 569))
-            
+
             pygame.display.flip()
 
         #Single Play block
@@ -163,27 +166,26 @@ if __name__ == "__main__":
             screen.blit(imageBackground, (0, 0))
 
             curGame.shadowCalc()
-            
+
             if curGame.clearDelay == 0:
                 if curGame.curMino == 'I':
-                    screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curGame.curMino]], 
+                    screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curGame.curMino]],
                                                         SHADOW_ROTATION[curGame.curRot][0]),
                                 (180 + 30 * (curGame.posShadow[1] - 1 + SHADOW_ROTATION_I[curGame.curRot][1][1]),
                                 50 + 30 * (curGame.posShadow[0] - 5 + SHADOW_ROTATION_I[curGame.curRot][1][0])))
                 elif curGame.curMino == 'O':
-                    screen.blit(imageShadow[MINO_DICT[curGame.curMino]], 
+                    screen.blit(imageShadow[MINO_DICT[curGame.curMino]],
                                 (180 + 30 * (curGame.posShadow[1] - 0), 50 + 30 * (curGame.posShadow[0] - 5)))
                 else:
-                    screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curGame.curMino]], 
+                    screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curGame.curMino]],
                                                         SHADOW_ROTATION[curGame.curRot][0]),
                                 (180 + 30 * (curGame.posShadow[1] - 1 + SHADOW_ROTATION[curGame.curRot][1][1]),
                                 50 + 30 * (curGame.posShadow[0] - 5 + SHADOW_ROTATION[curGame.curRot][1][0])))
-            
+
             curGame.tick()
-            
-            if len(curGame.minoQueue) < 6:
-                for i in curGame.NextMinoQueue():
-                    curGame.minoQueue.append(i)
+
+            if curGame.lastLineClearedDelay > 0:
+                screen.blit(imageClear[(curGame.lastLineCleared - 1) * 3], (15, 445))
 
             for i in range(5):
                 screen.blit(imageNextMino[MINO_DICT[curGame.minoQueue[i]]], (510 + 10, 110 + 10 + 90 * i))
@@ -201,11 +203,11 @@ if __name__ == "__main__":
                 for j in range(10):
                     if curGame.field[i][j] != 0:
                         screen.blit(imageBlock[curGame.field[i][j]], (180 + 30 * j, 50 + 30 * (i - 4)))
-            
+
             if curGame.gameOverFlag:
                 singlePlayFlag = False
                 menuFlag = True
-            print(curGame.curMino, curGame.curPos, curGame.curRot, curGame.moveDelay, curGame.softDropDelay, curGame.hardDropDelay)
+            # print(curGame.curMino, curGame.curPos, curGame.curRot, curGame.moveDelay, curGame.softDropDelay, curGame.hardDropDelay)
             pygame.display.flip()
 
     pygame.quit()
