@@ -8,6 +8,8 @@ from SimpleTetrisConstant import *
 from SimpleTetrisGame import SimpleTetrisGame
 from SimpleTetrisHelper import *
 
+#TODO T-spin recognize, multiplayer
+
 if __name__ == "__main__":
     pygame.init()
 
