@@ -90,3 +90,4 @@ SHADOW_ROTATION_I = {0 : (  0, (1, 0)),
                      2 : (180, (2, 0)),
                      3 : ( 90, (0, 1))}
 DELAY_V = 4
+DELAY_FIRST = 8
