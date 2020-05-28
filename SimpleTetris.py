@@ -185,7 +185,10 @@ if __name__ == "__main__":
             curGame.tick()
 
             if curGame.lastLineClearedDelay > 0:
-                screen.blit(imageClear[(curGame.lastLineCleared - 1) * 3], (15, 445))
+                if curGame.BTBCount == 2:
+                    screen.blit(imageClear[(curGame.lastLineCleared - 1) * 3 + 1], (15, 445))
+                else:
+                    screen.blit(imageClear[(curGame.lastLineCleared - 1) * 3], (15, 445))
 
             for i in range(5):
                 screen.blit(imageNextMino[MINO_DICT[curGame.minoQueue[i]]], (510 + 10, 110 + 10 + 90 * i))
