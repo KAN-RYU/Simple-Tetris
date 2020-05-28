@@ -44,6 +44,15 @@ IMAGE_SHADOW = ['',
                 './Sprite/OMino_shadow.png',
                 './Sprite/IMino_shadow.png',]
 
+IMAGE_MENU = './Sprite/Menu.png'
+
+IMAGE_BUTTON = ['./Sprite/SinglePlayButtonOn.png',
+                './Sprite/SinglePlayButtonDown.png',
+                './Sprite/MultiPlayButtonOn.png',
+                './Sprite/MultiPlayButtonDown.png',
+                './Sprite/ExitButtonOn.png',
+                './Sprite/ExitButtonDown.png']
+
 BACKGROUND = './Sprite/Background.png'
 MINO_STATE = {'T' : [((-1,  0), ( 0, -1), ( 0,  0), ( 0,  1)),
                      ((-1,  0), ( 0,  0), ( 0,  1), ( 1,  0)),

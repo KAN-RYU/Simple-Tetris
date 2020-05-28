@@ -35,6 +35,7 @@ class SimpleTetrisGame():
         self.holdFlag = False
         self.softDropFlag = False
         self.hardDropFlag = False
+        self.gameOverFlag = False
     
     def NextMinoQueue(self):
         nextMinoQueue = ['T', 'S', 'Z', 'L', 'J', 'O', 'I']
@@ -55,6 +56,8 @@ class SimpleTetrisGame():
         else:
             curPos = [5, 4]
         for state in MINO_STATE[curMino][curRot]:
+            if self.field[curPos[0] + state[0]][curPos[1] + state[1]] != 0:
+                self.gameOverFlag = True
             self.field[curPos[0] + state[0]][curPos[1] + state[1]] = MINO_DICT[curMino]
         self.curMino = curMino
         self.curPos = curPos
