@@ -65,6 +65,7 @@ IMAGE_CLEAR = ['./Sprite/ClearSingle.png',
                './Sprite/ClearTetris.png',
                './Sprite/ClearTetrisBTB.png',]
 
+IMAGE_GAMEOVER = './Sprite/GameOver.png'
 BACKGROUND = './Sprite/Background.png'
 MINO_STATE = {'T' : [((-1,  0), ( 0, -1), ( 0,  0), ( 0,  1)),
                      ((-1,  0), ( 0,  0), ( 0,  1), ( 1,  0)),

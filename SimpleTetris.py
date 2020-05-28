@@ -25,6 +25,7 @@ if __name__ == "__main__":
 
     imageBackground = pygame.image.load(resource_path(BACKGROUND))
     imageMenu = pygame.image.load(resource_path(IMAGE_MENU))
+    imageGameOver = pygame.image.load(resource_path(IMAGE_GAMEOVER))
     imageButton = []
     for i in range(6):
         imageButton.append(pygame.image.load(resource_path(IMAGE_BUTTON[i])))
@@ -210,6 +211,16 @@ if __name__ == "__main__":
             if curGame.gameOverFlag:
                 singlePlayFlag = False
                 menuFlag = True
+                screen.blit(imageGameOver, (205, 200))
+                pygame.display.flip()
+                delay = 60 * 3
+                flag = True
+                while flag:
+                    clock.tick(60)
+                    for event in pygame.event.get():
+                        if event.type == pygame.KEYUP and delay == 0:
+                            flag = False
+                    delay = delay - 1 if delay > 0 else 0
             # print(curGame.curMino, curGame.curPos, curGame.curRot, curGame.moveDelay, curGame.softDropDelay, curGame.hardDropDelay)
             pygame.display.flip()
 
