@@ -40,6 +40,12 @@ class SimpleTetrisGame():
         nextMinoQueue = ['T', 'S', 'Z', 'L', 'J', 'O', 'I']
         return random.sample(nextMinoQueue, 7)
     
+    def tick(self):
+        self.moveDelay = self.moveDelay - 1 if self.moveDelay > 0 else 0
+        self.hardDropDelay = self.hardDropDelay - 1 if self.hardDropDelay > 0 else 0
+        self.softDropDelay = self.softDropDelay - 1 if self.softDropDelay > 0 else 0
+        self.clearDelay = self.clearDelay - 1 if self.clearDelay > 0 else 0
+    
     def NextMino(self):
         curMino = self.minoQueue.pop(0)
         curPos = [0, 0]

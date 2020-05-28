@@ -6,6 +6,7 @@ import random
 import copy
 from SimpleTetrisConstant import *
 from SimpleTetrisGame import SimpleTetrisGame
+from SimpleTetrisHelper import *
 
 if __name__ == "__main__":
     pygame.init()
@@ -18,19 +19,19 @@ if __name__ == "__main__":
     done = False
     clock = pygame.time.Clock()
 
-    imageBackground = pygame.image.load(BACKGROUND)
+    imageBackground = pygame.image.load(resource_path(BACKGROUND))
     imageMino = ['']
     for i in range(1, 8):
-        imageMino.append(pygame.image.load(IMAGE_MINO[i]))
+        imageMino.append(pygame.image.load(resource_path(IMAGE_MINO[i])))
     imageNextMino = ['']
     for i in range(1, 8):
-        imageNextMino.append(pygame.image.load(IMAGE_NEXT_MINO[i]))
+        imageNextMino.append(pygame.image.load(resource_path(IMAGE_NEXT_MINO[i])))
     imageBlock = ['']
     for i in range(1, 8):
-        imageBlock.append(pygame.image.load(IMAGE_BLOCK[i]))
+        imageBlock.append(pygame.image.load(resource_path(IMAGE_BLOCK[i])))
     imageShadow = ['']
     for i in range(1, 8):
-        imageShadow.append(pygame.image.load(IMAGE_SHADOW[i]))
+        imageShadow.append(pygame.image.load(resource_path(IMAGE_SHADOW[i])))
     
     random.seed(42)
     curGame = SimpleTetrisGame()
@@ -314,10 +315,7 @@ if __name__ == "__main__":
                 if curGame.field[i][j] != 0:
                     screen.blit(imageBlock[curGame.field[i][j]], (180 + 30 * j, 50 + 30 * (i - 4)))
 
-        curGame.moveDelay = curGame.moveDelay - 1 if curGame.moveDelay > 0 else 0
-        curGame.hardDropDelay = curGame.hardDropDelay - 1 if curGame.hardDropDelay > 0 else 0
-        curGame.softDropDelay = curGame.softDropDelay - 1 if curGame.softDropDelay > 0 else 0
-        curGame.clearDelay = curGame.clearDelay - 1 if curGame.clearDelay > 0 else 0
+        curGame.tick()
         # print(curGame.curMino, curGame.curPos, curGame.curRot, curGame.moveDelay, curGame.softDropDelay, curGame.hardDropDelay)
         pygame.display.flip()
 
