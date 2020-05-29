@@ -5,18 +5,24 @@ from SimpleTetrisConstant import *
 class SimpleTetrisGame():
     def __init__(self):
         self.field = []
-        for i in range(25):
+        for i in range(27):
             self.field.append([0]*12)
 
         self.ghostField = []
-        for i in range(25):
+        for i in range(27):
             self.ghostField.append([0]*12)
 
-        for i in range(25):
+        for i in range(27):
             self.field[i][10] = 8
             self.field[i][11] = 8
             self.ghostField[i][10] = 8
             self.ghostField[i][11] = 8
+        
+        for i in range(12):
+            self.field[25][i] = 8
+            self.field[26][i] = 8
+            self.ghostField[25][i] = 8
+            self.ghostField[26][i] = 8
 
         self.minoQueue = self.NextMinoQueue()
         for i in self.NextMinoQueue():
@@ -143,7 +149,7 @@ class SimpleTetrisGame():
         self.softDropDelay = self.softDropDelay - 1 if self.softDropDelay > 0 else 0
         self.clearDelay = self.clearDelay - 1 if self.clearDelay > 0 else 0
         self.lastLineClearedDelay = self.lastLineClearedDelay - 1 if self.lastLineClearedDelay - 1 > 0 else 0
-        self.gravityCount = self.gravityCount - 1 if self.gravityCount > 0 else 20
+        self.gravityCount = self.gravityCount - 1 if self.gravityCount > 0 else DELAY_GRAVITY
 
     def NextMino(self):
         curMino = self.minoQueue.pop(0)
@@ -161,7 +167,7 @@ class SimpleTetrisGame():
         self.curPos = curPos
         self.curRot = curRot
         self.holdFlag = False
-        self.gravityCount = 20
+        self.gravityCount = DELAY_GRAVITY
 
     def Collide(self, mino, pos, rot, newrot, kick):
         if not mino == 'I' and (pos[0] > 25 or pos [1] < 0 or pos[1] > 9):
@@ -268,11 +274,14 @@ class SimpleTetrisGame():
                     self.field[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = MINO_DICT[self.curMino]
 
     def softDrop(self):
-        if self.softDropDelay > 0 or self.clearDelay > 0:
+        if self.softDropDelay > 2 or self.clearDelay > 0:
             pass
         else:
             try:
-                self.softDropDelay = DELAY_V
+                if self.softDropDelay == 0:
+                    self.softDropDelay = DELAY_FIRST
+                else :
+                    self.softDropDelay = DELAY_V
                 if not self.Collide(self.curMino, [self.curPos[0] + 1, self.curPos[1]],
                                     self.curRot, self.curRot, False):
                     for state in MINO_STATE[self.curMino][self.curRot]:
@@ -283,10 +292,10 @@ class SimpleTetrisGame():
                     for state in MINO_STATE[self.curMino][self.curRot]:
                         self.field[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = MINO_DICT[self.curMino]
                 else:
-                    self.gravityCount = 20
+                    self.gravityCount = DELAY_GRAVITY
                     self.softDropFlag = True
             except:
-                self.gravityCount = 20
+                self.gravityCount = DELAY_GRAVITY
                 self.softDropFlag = True
 
     def hardDrop(self):
