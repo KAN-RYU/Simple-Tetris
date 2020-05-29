@@ -39,10 +39,13 @@ class battleManager():
     def sender(self):
         while True:
             mes = self.Message.get()
-            if mes[:4] == 'home':
-                self.awaySock.send(mes.encode('utf-8'))
-            if mes[:4] == 'away':
-                self.homeSock.send(mes.encode('utf-8'))
+            try:
+                if mes[:4] == 'home':
+                    self.awaySock.send(mes.encode('utf-8'))
+                if mes[:4] == 'away':
+                    self.homeSock.send(mes.encode('utf-8'))
+            except:
+                break
     
     def receiveData(self, sock, addr, home):
         while True:
