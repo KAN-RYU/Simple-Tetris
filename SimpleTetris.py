@@ -11,6 +11,7 @@ from SimpleTetrisHelper import *
 #TODO T-spin recognize, multiplayer
 
 if __name__ == "__main__":
+    #ANCHOR - INIT
     pygame.init()
 
     size = [1280, 720]
@@ -25,9 +26,15 @@ if __name__ == "__main__":
     multiPlayFlag = False
     menuFlag = True
 
-    imageBackground = pygame.image.load(resource_path(BACKGROUND))
+    #ANCHOR - Load images
+    imageBackground = pygame.image.load(resource_path(IMAGE_BACKGROUND))
     imageMenu = pygame.image.load(resource_path(IMAGE_MENU))
     imageGameOver = pygame.image.load(resource_path(IMAGE_GAMEOVER))
+    imageCombo = pygame.image.load(resource_path(IMAGE_COMBO))
+    imageLine = pygame.image.load(resource_path(IMAGE_LINE))
+    imageNum = []
+    for i in range(10):
+        imageNum.append(pygame.image.load(resource_path(IMAGE_NUM[i])))
     imageButton = []
     for i in range(6):
         imageButton.append(pygame.image.load(resource_path(IMAGE_BUTTON[i])))
@@ -48,7 +55,7 @@ if __name__ == "__main__":
         imageClear.append(pygame.image.load(resource_path(IMAGE_CLEAR[i])))
 
     while not done:
-        #Menu Block
+        #SECTION - Menu Block
         if menuFlag:
             singleOver = False
             multiOver = False
@@ -56,20 +63,25 @@ if __name__ == "__main__":
         while menuFlag:
             clock.tick(60)
 
+            #ANCHOR - Pygame event processing
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     done = True
                     menuFlag = False
+                #MouseOver
                 elif event.type == pygame.MOUSEMOTION:
                     if event.pos[0] >= 74 and event.pos[0] <= 518:
+                        #SinglePlay button
                         if event.pos[1] >= 277 and event.pos[1] <= 398:
                             singleOver = True
                             multiOver = False
                             exitOver = False
+                        #MultiPlay button
                         elif event.pos[1] >= 423 and event.pos[1] <= 544:
                             singleOver = False
                             multiOver = True
                             exitOver = False
+                        #Exit button
                         elif event.pos[1] >= 569 and event.pos[1] <= 690:
                             singleOver = False
                             multiOver = False
@@ -82,18 +94,23 @@ if __name__ == "__main__":
                         singleOver = False
                         multiOver = False
                         exitOver = False
+                #MouseClick
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if event.pos[0] >= 74 and event.pos[0] <= 518:
+                        #SinglePlay button
                         if event.pos[1] >= 277 and event.pos[1] <= 398:
                             singlePlayFlag = True
                             menuFlag = False
+                        #MultiPlay button
                         elif event.pos[1] >= 423 and event.pos[1] <= 544:
                             multiPlayFlag = True
                             menuFlag = False
+                        #Exit button
                         elif event.pos[1] >= 569 and event.pos[1] <= 690:
                             menuFlag = False
                             done = True
 
+            #ANCHOR - Draw screen
             screen.blit(imageMenu, (0, 0))
             if singleOver:
                 screen.blit(imageButton[0], (74, 277))
@@ -109,8 +126,10 @@ if __name__ == "__main__":
                 screen.blit(imageButton[5], (74, 569))
 
             pygame.display.flip()
+        #!SECTION
 
-        #Single Play block
+        #SECTION - Single Play block
+        #ANCHOR - Single Play init
         if singlePlayFlag:
             seed = int(time.time())
             print(seed)
@@ -120,13 +139,14 @@ if __name__ == "__main__":
         while singlePlayFlag:
             clock.tick(60)
 
+            #ANCHOR - Pygame event processing
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     done = True
                     singlePlayFlag = False
 
-            #Processing key input
-            #Shift movement
+            #SECTION - Processing key input
+            #ANCHOR - Shift movement
             pressed = pygame.key.get_pressed()
             if pressed[pygame.K_a]:
                 curGame.moveLeft()
@@ -137,7 +157,7 @@ if __name__ == "__main__":
             elif not pressed[pygame.K_k] or not pressed[pygame.K_d]:
                 curGame.moveDelay = 0
 
-            #Spin Movement
+            #ANCHOR - Spin Movement
             if pressed[pygame.K_j]:
                 curGame.spinCW()
 
@@ -150,55 +170,71 @@ if __name__ == "__main__":
             if not pressed[pygame.K_l]:
                 curGame.spinCCWDelay = False
 
-            #Hold Function
+            #ANCHOR - Hold Function
             if pressed[pygame.K_k]:
                 curGame.hold()
 
-            #Soft Drop
+            #ANCHOR - Soft Drop
             if pressed[pygame.K_s]:
                 curGame.softDrop()
 
             if not pressed[pygame.K_s]:
                 curGame.softDropDelay = 0
 
-            #Hard Drop
+            #ANCHOR - Hard Drop
             if pressed[pygame.K_SPACE]:
                 curGame.hardDrop()
 
             if not pressed[pygame.K_SPACE]:
                 curGame.hardDropDelay = 0
-
-            #Draw Screen
-            screen.blit(imageBackground, (0, 0))
+            #!SECTION
 
             curGame.shadowCalc()
+            
+            #SECTION - Draw Screen
+            #ANCHOR - BG
+            screen.blit(imageBackground, (0, 0))
 
+            #ANCHOR - Shadow Mino
             if curGame.clearDelay == 0:
                 if curGame.curMino == 'I':
                     screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curGame.curMino]],
-                                                        SHADOW_ROTATION[curGame.curRot][0]),
-                                (180 + 30 * (curGame.posShadow[1] - 1 + SHADOW_ROTATION_I[curGame.curRot][1][1]),
-                                50 + 30 * (curGame.posShadow[0] - 5 + SHADOW_ROTATION_I[curGame.curRot][1][0])))
+                                                        SHADOW_ROTATION[curGame.rotShadow][0]),
+                                (180 + 30 * (curGame.posShadow[1] - 1 + SHADOW_ROTATION_I[curGame.rotShadow][1][1]),
+                                50 + 30 * (curGame.posShadow[0] - 5 + SHADOW_ROTATION_I[curGame.rotShadow][1][0])))
                 elif curGame.curMino == 'O':
                     screen.blit(imageShadow[MINO_DICT[curGame.curMino]],
                                 (180 + 30 * (curGame.posShadow[1] - 0), 50 + 30 * (curGame.posShadow[0] - 5)))
                 else:
                     screen.blit(pygame.transform.rotate(imageShadow[MINO_DICT[curGame.curMino]],
-                                                        SHADOW_ROTATION[curGame.curRot][0]),
-                                (180 + 30 * (curGame.posShadow[1] - 1 + SHADOW_ROTATION[curGame.curRot][1][1]),
-                                50 + 30 * (curGame.posShadow[0] - 5 + SHADOW_ROTATION[curGame.curRot][1][0])))
-
+                                                        SHADOW_ROTATION[curGame.rotShadow][0]),
+                                (180 + 30 * (curGame.posShadow[1] - 1 + SHADOW_ROTATION[curGame.rotShadow][1][1]),
+                                50 + 30 * (curGame.posShadow[0] - 5 + SHADOW_ROTATION[curGame.rotShadow][1][0])))
+            
             curGame.tick()
 
+            #ANCHOR - Cleared line
             if curGame.lastLineClearedDelay > 0:
+                if curGame.recentComboCount > 1:
+                    screen.blit(imageCombo, (10, 345))
+                    if curGame.recentComboCount // 10 > 0:
+                        screen.blit(imageNum[curGame.recentComboCount // 10], (90, 395))
+                    screen.blit(imageNum[curGame.recentComboCount % 10], (120, 395))
                 if curGame.BTBCount == 2:
                     screen.blit(imageClear[(curGame.lastLineCleared - 1) * 3 + 1], (15, 445))
                 else:
                     screen.blit(imageClear[(curGame.lastLineCleared - 1) * 3], (15, 445))
 
+            #ANCHOR - Total cleared line
+            screen.blit(imageLine, (510, 540))
+            for i, s in enumerate(numStrip(curGame.totalLineCleared)):
+                screen.blit(imageNum[s], (600 - 30 * i, 590))
+
+            #ANCHOR - Next minos
             for i in range(5):
                 screen.blit(imageNextMino[MINO_DICT[curGame.minoQueue[i]]], (510 + 10, 110 + 10 + 90 * i))
 
+            #ANCHOR - Hold mino
             if curGame.curHold != 0:
                 size = imageMino[MINO_DICT[curGame.curHold]].get_rect().size
                 screen.blit(imageMino[MINO_DICT[curGame.curHold]], (100 - size[0] // 2, 175 - size[1] // 2))
@@ -208,6 +244,7 @@ if __name__ == "__main__":
                 s.fill((0, 0, 0, 128))
                 screen.blit(s, (35, 110))
 
+            #ANCHOR - Field
             for i in range(4, 25):
                 for j in range(10):
                     if curGame.field[i][j] != 0:
@@ -228,6 +265,15 @@ if __name__ == "__main__":
                     delay = delay - 1 if delay > 0 else 0
             # print(curGame.curMino, curGame.curPos, curGame.curRot, curGame.moveDelay, curGame.softDropDelay, curGame.hardDropDelay)
             pygame.display.flip()
+            #!SECTION
+        #!SECTION
+
+        #SECTION - Multi play block
+        while multiPlayFlag:
+            clock.tick(60)
+            multiPlayFlag = False
+            menuFlag = True
+        #!SECTION
 
     pygame.quit()
 

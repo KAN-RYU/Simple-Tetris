@@ -9,3 +9,13 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
+def numStrip(n):
+    striped = []
+    if n == 0:
+        return [0]
+    while n > 0:
+        striped.append(n % 10)
+        n //= 10
+    
+    return striped
