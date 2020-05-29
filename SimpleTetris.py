@@ -8,7 +8,7 @@ from SimpleTetrisConstant import *
 from SimpleTetrisGame import SimpleTetrisGame
 from SimpleTetrisHelper import *
 
-#TODO T-spin recognize, multiplayer
+#TODO multiplayer
 
 if __name__ == "__main__":
     #ANCHOR - INIT
@@ -227,7 +227,11 @@ if __name__ == "__main__":
                     if curGame.recentComboCount // 10 > 0:
                         screen.blit(imageNum[curGame.recentComboCount // 10], (90, 395))
                     screen.blit(imageNum[curGame.recentComboCount % 10], (120, 395))
-                if curGame.BTBCount == 2:
+                if curGame.lastTSpinFlag == True and curGame.BTBCount == 2:
+                    screen.blit(imageClear[(curGame.lastLineCleared - 1) * 3 + 2], (15, 445))
+                elif curGame.lastTSpinFlag == True:
+                    screen.blit(imageClear[(curGame.lastLineCleared - 1) * 3 + 1], (15, 445))
+                elif curGame.lastLineCleared == 4 and curGame.BTBCount == 2:
                     screen.blit(imageClear[(curGame.lastLineCleared - 1) * 3 + 1], (15, 445))
                 else:
                     screen.blit(imageClear[(curGame.lastLineCleared - 1) * 3], (15, 445))
@@ -267,6 +271,10 @@ if __name__ == "__main__":
                 while flag:
                     clock.tick(60)
                     for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            done = True
+                            singlePlayFlag = False
+                            flag = False
                         if event.type == pygame.KEYUP and delay == 0:
                             flag = False
                     delay = delay - 1 if delay > 0 else 0

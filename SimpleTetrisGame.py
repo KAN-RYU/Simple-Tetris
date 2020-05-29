@@ -58,6 +58,7 @@ class SimpleTetrisGame():
         self.hardDropFlag = False
         self.gameOverFlag = False
         self.tSpinFlag = False
+        self.lastTSpinFlag = False
         self.lockFlag = False
         self.softLockFlag = False
 
@@ -99,6 +100,9 @@ class SimpleTetrisGame():
         self.curPos = nextPos
         self.curRot = nextRot
         self.holdFlag = False
+        self.tSpinFlag = False
+        self.lockFlag = False
+        self.softLockFlag = False
         self.gravityCount = DELAY_GRAVITY
 
     def Collide(self, mino, pos, rot, newrot, kick):
@@ -142,6 +146,10 @@ class SimpleTetrisGame():
 
                     for state in MINO_STATE[self.curMino][self.curRot]:
                         self.field[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = MINO_DICT[self.curMino]
+                    
+                    self.tSpinFlag = False
+                    self.lockFlag = self.Collide(self.curMino, [self.curPos[0] + 1, self.curPos[1]],
+                                    self.curRot, self.curRot, False)
             except:
                 pass
 
@@ -170,6 +178,15 @@ class SimpleTetrisGame():
 
                 for state in MINO_STATE[self.curMino][self.curRot]:
                     self.field[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = MINO_DICT[self.curMino]
+                
+                if self.curMino == 'T':
+                    tSpinCount = 0
+                    tSpinCount += 1 if self.field[self.curPos[0] - 1][self.curPos[1] - 1] != 0 else 0
+                    tSpinCount += 1 if self.field[self.curPos[0] - 1][self.curPos[1] + 1] != 0 else 0
+                    tSpinCount += 1 if self.field[self.curPos[0] + 1][self.curPos[1] - 1] != 0 else 0
+                    tSpinCount += 1 if self.field[self.curPos[0] + 1][self.curPos[1] + 1] != 0 else 0
+                    if tSpinCount >= 3:
+                        self.tSpinFlag = True
                 
                 if self.Collide(self.curMino, [self.curPos[0] + 1, self.curPos[1]],
                                     self.curRot, self.curRot, False):
@@ -228,6 +245,8 @@ class SimpleTetrisGame():
 
                     for state in MINO_STATE[self.curMino][self.curRot]:
                         self.field[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = MINO_DICT[self.curMino]
+                    
+                    self.tSpinFlag = False
                 else:
                     self.gravityCount = DELAY_GRAVITY
                     self.lockFlag = self.Collide(self.curMino, [self.curPos[0] + 1, self.curPos[1]],
@@ -303,15 +322,16 @@ class SimpleTetrisGame():
             self.lineClearFlag = False
             self.clearDelay = 0
             if lineCleared != 0:
-                print(lineCleared, "Line Clear", self.comboCount, "Combo")
+                print(lineCleared, "Line Clear", 'Tspin' if self.tSpinFlag else '', self.comboCount, "Combo", self.BTBCount)
                 self.comboCount += 1
                 self.recentComboCount = self.comboCount
-                if lineCleared == 4:
+                if lineCleared == 4 or self.tSpinFlag:
                     self.BTBCount = self.BTBCount + 1 if self.BTBCount < 2 else 2
                 else:
                     self.BTBCount = 0
                 self.lastLineCleared = lineCleared
                 self.totalLineCleared += lineCleared
+                self.lastTSpinFlag = self.tSpinFlag
                 self.lastLineClearedDelay = 60 * 1
                 self.clearDelay = 10
             else:
