@@ -3,7 +3,7 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 from pygame.locals import *
 import random
-import copy
+import time
 from SimpleTetrisConstant import *
 from SimpleTetrisGame import SimpleTetrisGame
 from SimpleTetrisHelper import *
@@ -112,7 +112,9 @@ if __name__ == "__main__":
 
         #Single Play block
         if singlePlayFlag:
-            random.seed(42)
+            seed = int(time.time())
+            print(seed)
+            random.seed(seed)
             curGame = SimpleTetrisGame()
         while singlePlayFlag:
             clock.tick(60)
