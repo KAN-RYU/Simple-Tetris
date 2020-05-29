@@ -3,7 +3,7 @@ import copy
 from SimpleTetrisConstant import *
 
 class SimpleTetrisGame():
-    def __init__(self):
+    def __init__(self, multiPlay = False):
         self.field = []
         for i in range(27):
             self.field.append([0]*12)
@@ -363,3 +363,10 @@ class SimpleTetrisGame():
                 i -= 1
 
             self.NextMino()
+    
+    def zipData(self):
+        data = ''
+        for i in range(4, 25):
+            for j in range(10):
+                    data += str(self.field[i][j])
+        return data

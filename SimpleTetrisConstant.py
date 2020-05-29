@@ -80,6 +80,7 @@ IMAGE_GAMEOVER = './Sprite/GameOver.png'
 IMAGE_COMBO = './Sprite/Combo.png'
 IMAGE_LINE = './Sprite/Line.png'
 IMAGE_BACKGROUND = './Sprite/Background.png'
+IMAGE_BACKGROUND_MULTI = './Sprite/BackgroundMulti.png'
 
 MINO_STATE = {'T' : [((-1,  0), ( 0, -1), ( 0,  0), ( 0,  1)),
                      ((-1,  0), ( 0,  0), ( 0,  1), ( 1,  0)),
