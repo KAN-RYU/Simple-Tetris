@@ -9,6 +9,7 @@ debug.log
 /build
 /dist
 /PSD
+/output
 
 *.ini
 *.spec

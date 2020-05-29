@@ -39,6 +39,7 @@ class SimpleTetrisGame():
         self.clearDelay = 0
         self.gravityCount = 0
         self.BTBCount = 0
+        self.comboCount = 0
         
         self.lineClearFlag = False
         self.spinCWDelay = False
@@ -94,7 +95,8 @@ class SimpleTetrisGame():
             self.lineClearFlag = False
             self.clearDelay = 0
             if lineCleared != 0:
-                print(lineCleared, "Line Clear")
+                self.comboCount += 1
+                print(lineCleared, "Line Clear", self.comboCount - 1, "Combo")
                 if lineCleared == 4:
                     self.BTBCount = self.BTBCount + 1 if self.BTBCount < 2 else 2
                 else:
@@ -103,6 +105,7 @@ class SimpleTetrisGame():
                 self.lastLineClearedDelay = 60 * 1
                 self.clearDelay = 10
             else:
+                self.comboCount = 0
                 self.NextMino()
 
         if self.clearDelay == 1:
