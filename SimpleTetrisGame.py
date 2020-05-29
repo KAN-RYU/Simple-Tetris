@@ -27,6 +27,8 @@ class SimpleTetrisGame():
 
         self.posShadow = [0, 0]
         self.rotShadow = 0
+        
+        self.seed = 0
 
         self.lastLineCleared = 0
         self.lastLineClearedDelay = 0
@@ -94,7 +96,7 @@ class SimpleTetrisGame():
             if lineCleared != 0:
                 print(lineCleared, "Line Clear")
                 if lineCleared == 4:
-                    self.BTBCount += 1 if self.BTBCount < 2 else 2
+                    self.BTBCount = self.BTBCount + 1 if self.BTBCount < 2 else 2
                 else:
                     self.BTBCount = 0
                 self.lastLineCleared = lineCleared

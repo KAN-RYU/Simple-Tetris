@@ -116,6 +116,7 @@ if __name__ == "__main__":
             print(seed)
             random.seed(seed)
             curGame = SimpleTetrisGame()
+            curGame.seed = seed
         while singlePlayFlag:
             clock.tick(60)
 
