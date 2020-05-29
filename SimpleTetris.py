@@ -177,9 +177,16 @@ if __name__ == "__main__":
             #ANCHOR - Soft Drop
             if pressed[pygame.K_s]:
                 curGame.softDrop()
+                if curGame.softLockFlag == True:
+                    curGame.softLockFlag = False
+                    curGame.softDropFlag = True
+                    curGame.lockFlag = False
 
             if not pressed[pygame.K_s]:
                 curGame.softDropDelay = 0
+                if curGame.lockFlag == True:
+                    curGame.lockFlag = False
+                    curGame.softLockFlag = True
 
             #ANCHOR - Hard Drop
             if pressed[pygame.K_SPACE]:

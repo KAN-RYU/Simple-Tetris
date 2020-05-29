@@ -57,93 +57,20 @@ class SimpleTetrisGame():
         self.softDropFlag = False
         self.hardDropFlag = False
         self.gameOverFlag = False
+        self.tSpinFlag = False
+        self.lockFlag = False
+        self.softLockFlag = False
 
     def NextMinoQueue(self):
         nextMinoQueue = ['T', 'S', 'Z', 'L', 'J', 'O', 'I']
         return random.sample(nextMinoQueue, 7)
 
     def tick(self):
-        if self.gravityCount == 0:
-            self.softDrop()
-            
-        if self.softDropFlag or self.hardDropFlag:
-            self.lineClearFlag = True
+        self.gravityDrop()
+        
+        self.processDrop()
 
-        if self.hardDropFlag:
-            for state in MINO_STATE[self.curMino][self.curRot]:
-                self.field[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = 0
-
-            for state in MINO_STATE[self.curMino][self.curRot]:
-                self.field[self.posShadow[0] + state[0]][self.posShadow[1] + state[1]] = MINO_DICT[self.curMino]
-
-            for state in MINO_STATE[self.curMino][self.curRot]:
-                self.ghostField[self.posShadow[0] + state[0]][self.posShadow[1] + state[1]] = MINO_DICT[self.curMino]
-
-            self.hardDropFlag = False
-            self.softDropFlag = False
-
-        if self.softDropFlag:
-            for state in MINO_STATE[self.curMino][self.curRot]:
-                self.field[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = MINO_DICT[self.curMino]
-                self.ghostField[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = MINO_DICT[self.curMino]
-
-            self.hardDropFlag = False
-            self.softDropFlag = False
-
-        if self.lineClearFlag:
-            lineCleared = 0
-            for i in range(4, 25):
-                fullLine = True
-                for j in range(10):
-                    fullLine = False if self.field[i][j] == 0 else fullLine
-                if fullLine:
-                    lineCleared += 1
-                    for j in range(10):
-                        self.field[i][j] = 0
-                        self.ghostField[i][j] = 0
-            self.lineClearFlag = False
-            self.clearDelay = 0
-            if lineCleared != 0:
-                print(lineCleared, "Line Clear", self.comboCount, "Combo")
-                self.comboCount += 1
-                self.recentComboCount = self.comboCount
-                if lineCleared == 4:
-                    self.BTBCount = self.BTBCount + 1 if self.BTBCount < 2 else 2
-                else:
-                    self.BTBCount = 0
-                self.lastLineCleared = lineCleared
-                self.totalLineCleared += lineCleared
-                self.lastLineClearedDelay = 60 * 1
-                self.clearDelay = 10
-            else:
-                self.comboCount = 0
-                self.NextMino()
-
-        if self.clearDelay == 1:
-            flag = False
-            for i in range(24):
-                for j in range(10):
-                    if self.field[i][j] != 0:
-                        flag = True
-                        break
-                if flag:
-                    break
-            top = i
-            i = 24
-            while i >= top:
-                emptyLine = True
-                for j in range(10):
-                    emptyLine = False if self.field[i][j] != 0 else emptyLine
-                if emptyLine:
-                    top += 1
-                    for k in range(i, 2, -1):
-                        for j in range(10):
-                            self.field[k][j] = self.field[k - 1][j]
-                            self.ghostField[k][j] = self.ghostField[k - 1][j]
-                    i += 1
-                i -= 1
-
-            self.NextMino()
+        self.clearLine()
 
         if len(self.minoQueue) < 6:
                 for i in self.NextMinoQueue():
@@ -244,7 +171,9 @@ class SimpleTetrisGame():
                 for state in MINO_STATE[self.curMino][self.curRot]:
                     self.field[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = MINO_DICT[self.curMino]
                 
-                self.gravityCount = DELAY_GRAVITY
+                if self.Collide(self.curMino, [self.curPos[0] + 1, self.curPos[1]],
+                                    self.curRot, self.curRot, False):
+                    self.gravityCount = DELAY_GRAVITY
             except:
                 pass
 
@@ -282,7 +211,7 @@ class SimpleTetrisGame():
             self.holdFlag = True
 
     def softDrop(self):
-        if self.softDropDelay > 2 or self.clearDelay > 0:
+        if self.softDropDelay > 2 or self.clearDelay > 0 or self.lockFlag:
             pass
         else:
             try:
@@ -301,10 +230,10 @@ class SimpleTetrisGame():
                         self.field[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = MINO_DICT[self.curMino]
                 else:
                     self.gravityCount = DELAY_GRAVITY
-                    self.softDropFlag = True
+                    self.lockFlag = self.Collide(self.curMino, [self.curPos[0] + 1, self.curPos[1]],
+                                    self.curRot, self.curRot, False)
             except:
-                self.gravityCount = DELAY_GRAVITY
-                self.softDropFlag = True
+                pass
 
     def hardDrop(self):
         if self.hardDropDelay > 0 or self.clearDelay > 0:
@@ -325,3 +254,92 @@ class SimpleTetrisGame():
                     break
         except:
             pass
+    
+    def gravityDrop(self):
+        if self.gravityCount == 0:
+            self.lockFlag = False
+            self.softDrop()
+            if self.lockFlag == True:
+                self.softDropFlag = True
+                self.lockFlag = False
+    
+    def processDrop(self):
+        if self.softDropFlag or self.hardDropFlag:
+            self.lineClearFlag = True
+
+        if self.hardDropFlag:
+            for state in MINO_STATE[self.curMino][self.curRot]:
+                self.field[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = 0
+
+            for state in MINO_STATE[self.curMino][self.curRot]:
+                self.field[self.posShadow[0] + state[0]][self.posShadow[1] + state[1]] = MINO_DICT[self.curMino]
+
+            for state in MINO_STATE[self.curMino][self.curRot]:
+                self.ghostField[self.posShadow[0] + state[0]][self.posShadow[1] + state[1]] = MINO_DICT[self.curMino]
+
+            self.hardDropFlag = False
+            self.softDropFlag = False
+
+        if self.softDropFlag:
+            for state in MINO_STATE[self.curMino][self.curRot]:
+                self.field[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = MINO_DICT[self.curMino]
+                self.ghostField[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = MINO_DICT[self.curMino]
+
+            self.hardDropFlag = False
+            self.softDropFlag = False
+    
+    def clearLine(self):
+        if self.lineClearFlag:
+            lineCleared = 0
+            for i in range(4, 25):
+                fullLine = True
+                for j in range(10):
+                    fullLine = False if self.field[i][j] == 0 else fullLine
+                if fullLine:
+                    lineCleared += 1
+                    for j in range(10):
+                        self.field[i][j] = 0
+                        self.ghostField[i][j] = 0
+            self.lineClearFlag = False
+            self.clearDelay = 0
+            if lineCleared != 0:
+                print(lineCleared, "Line Clear", self.comboCount, "Combo")
+                self.comboCount += 1
+                self.recentComboCount = self.comboCount
+                if lineCleared == 4:
+                    self.BTBCount = self.BTBCount + 1 if self.BTBCount < 2 else 2
+                else:
+                    self.BTBCount = 0
+                self.lastLineCleared = lineCleared
+                self.totalLineCleared += lineCleared
+                self.lastLineClearedDelay = 60 * 1
+                self.clearDelay = 10
+            else:
+                self.comboCount = 0
+                self.NextMino()
+
+        if self.clearDelay == 1:
+            flag = False
+            for i in range(24):
+                for j in range(10):
+                    if self.field[i][j] != 0:
+                        flag = True
+                        break
+                if flag:
+                    break
+            top = i
+            i = 24
+            while i >= top:
+                emptyLine = True
+                for j in range(10):
+                    emptyLine = False if self.field[i][j] != 0 else emptyLine
+                if emptyLine:
+                    top += 1
+                    for k in range(i, 2, -1):
+                        for j in range(10):
+                            self.field[k][j] = self.field[k - 1][j]
+                            self.ghostField[k][j] = self.ghostField[k - 1][j]
+                    i += 1
+                i -= 1
+
+            self.NextMino()
