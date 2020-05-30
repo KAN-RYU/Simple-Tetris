@@ -15,8 +15,8 @@ class battleManager():
         self.Message = Queue()
         print(home[1], away[1])
 
-        self.homeReceiver = threading.Thread(target=self.receiveData, args=(self.homeSock, home[1], True))
-        self.awayReceiver = threading.Thread(target=self.receiveData, args=(self.awaySock, away[1], False))
+        self.homeReceiver = threading.Thread(target=self.receiver, args=(self.homeSock, home[1], True))
+        self.awayReceiver = threading.Thread(target=self.receiver, args=(self.awaySock, away[1], False))
         self.homeReceiver.daemon = True
         self.awayReceiver.daemon = True
         self.homeReceiver.start()
@@ -41,27 +41,29 @@ class battleManager():
             mes = self.Message.get()
             try:
                 if mes[:4] == 'home':
+                    self.awaySock.send(len(mes.encode('utf-8')).to_bytes(4, byteorder = 'little'))
                     self.awaySock.send(mes.encode('utf-8'))
                 if mes[:4] == 'away':
+                    self.homeSock.send(len(mes.encode('utf-8')).to_bytes(4, byteorder = 'little'))
                     self.homeSock.send(mes.encode('utf-8'))
             except:
                 break
     
-    def receiveData(self, sock, addr, home):
+    def receiver(self, sock, addr, home):
+        tmp = b''
         while True:
             try:
-                recvData = sock.recv(len(('.' * 304).encode('utf-8')))
-                self.Message.put(('home' if home else 'away') + recvData.decode('utf-8'))
+                recvData = sock.recv(1024)
+                tmp += recvData
+                if len(tmp) < 4:
+                    continue
+                mesLength = int.from_bytes(tmp[0:4], "little")
+                if len(tmp[4:]) < mesLength:
+                    continue
+                self.Message.put(('home' if home else 'away') + tmp[4:4+mesLength].decode('utf-8'))
+                tmp = tmp[4+mesLength:]
             except:
                 break
-
-def send():
-    while True:
-        message = messageQ.get()
-        lock.acquire()
-        for sock, name, addr in client:
-            sock.send(message.encode('utf-8'))
-        lock.release()
 
 def receive(sock, name, addr):
     while True:
@@ -93,9 +95,6 @@ if __name__ == "__main__":
     serverSock.listen()
 
     print('Server Started.')
-    sender = threading.Thread(target=send, args=())
-    sender.daemon = True
-    sender.start()
 
     serverSock.settimeout(1)
     while True:

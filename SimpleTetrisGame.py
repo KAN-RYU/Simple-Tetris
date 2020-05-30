@@ -247,6 +247,7 @@ class SimpleTetrisGame():
                         self.field[self.curPos[0] + state[0]][self.curPos[1] + state[1]] = MINO_DICT[self.curMino]
                     
                     self.tSpinFlag = False
+                    self.softLockFlag = False
                 else:
                     self.gravityCount = DELAY_GRAVITY
                     self.lockFlag = self.Collide(self.curMino, [self.curPos[0] + 1, self.curPos[1]],

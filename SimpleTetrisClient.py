@@ -56,12 +56,22 @@ class SimpleTetrisClient():
         time.sleep(3)
         self.ready = True
         
+        tmp = b''
         while True:
-            recvData = self.clientSock.recv(len(('.' * 304).encode('utf-8'))).decode('utf-8')
+            recvData = self.clientSock.recv(1024)
+            tmp += recvData
+            if len(tmp) < 4:
+                continue
+            mesLength = int.from_bytes(tmp[0:4], "little")
+            if len(tmp[4:]) < mesLength:
+                continue
+            recvData = tmp[4:4+mesLength].decode('utf-8')
+            tmp = tmp[4+mesLength:]
             self.lock.acquire()
             for i, s in enumerate(recvData[4:]):
                 self.oppoField[4 + i // 10][i % 10] = int(s)
             self.lock.release()
     
     def sendData(self, data):
+        self.clientSock.send(len(data.encode('utf-8')).to_bytes(4, byteorder = 'little'))
         self.clientSock.send(data.encode('utf-8'))
