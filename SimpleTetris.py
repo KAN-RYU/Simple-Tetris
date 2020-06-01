@@ -39,6 +39,7 @@ if __name__ == "__main__":
     imageGameOver = pygame.image.load(resource_path(IMAGE_GAMEOVER))
     imageCombo = pygame.image.load(resource_path(IMAGE_COMBO))
     imageLine = pygame.image.load(resource_path(IMAGE_LINE))
+    imageWin = pygame.image.load(resource_path(IMAGE_WIN))
     imageNum = []
     for i in range(10):
         imageNum.append(pygame.image.load(resource_path(IMAGE_NUM[i])))
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     for i in range(1, 8):
         imageNextMino.append(pygame.image.load(resource_path(IMAGE_NEXT_MINO[i])))
     imageBlock = ['']
-    for i in range(1, 8):
+    for i in range(1, 9):
         imageBlock.append(pygame.image.load(resource_path(IMAGE_BLOCK[i])))
     imageShadow = ['']
     for i in range(1, 8):
@@ -319,9 +320,9 @@ if __name__ == "__main__":
             seed = networkManager.seed
             print(seed)
             random.seed(seed)
-            curGame = SimpleTetrisGame()
+            curGame = SimpleTetrisGame(multiPlay = True)
             curGame.seed = seed
-                
+
         while multiPlayFlag:
             clock.tick(60)
 
@@ -405,9 +406,36 @@ if __name__ == "__main__":
                                 50 + 30 * (curGame.posShadow[0] - 5 + SHADOW_ROTATION[curGame.rotShadow][1][0])))
 
             curGame.tick()
-            
+
             networkManager.sendData(curGame.zipData())
 
+            #ANCHOR - attack line
+            attack = 0
+            if curGame.lastLineClearedDelay == 30:
+                attack += min(curGame.recentComboCount // 2, 5)
+                if curGame.lastTSpinFlag:
+                    attack += curGame.lastLineCleared * 2
+                else:
+                    attack += curGame.lastLineCleared - 1
+                if curGame.lastLineCleared == 4:
+                    attack += 1
+                if curGame.BTBCount == 2:
+                    attack += 1
+
+            if attack > 0:
+                networkManager.sendData('ATTACK' + str(attack))
+            
+            #ANCHOR - attacked line
+            networkManager.lock.acquire()
+            attacked = len(networkManager.attackQueue) > 0
+            networkManager.lock.release()
+            if curGame.getMinoFlag and attacked:
+                networkManager.lock.acquire()
+                line = networkManager.attackQueue.pop(0)
+                networkManager.lock.release()
+                curGame.newLine(line)
+            curGame.getMinoFlag = False
+                
             #ANCHOR - Cleared line
             if curGame.lastLineClearedDelay > 0:
                 if curGame.recentComboCount > 1:
@@ -448,20 +476,47 @@ if __name__ == "__main__":
                 for j in range(10):
                     if curGame.field[i][j] != 0:
                         screen.blit(imageBlock[curGame.field[i][j]], (180 + 30 * j, 50 + 30 * (i - 4)))
-            
+
             #ANCHOR - OppoField
+            networkManager.lock.acquire()
             for i in range(4, 25):
                 for j in range(10):
                     if networkManager.oppoField[i][j] != 0:
                         screen.blit(imageBlock[networkManager.oppoField[i][j]], (800 + 30 * j, 50 + 30 * (i - 4)))
-
+            networkManager.lock.release()
+            
+            networkManager.lock.acquire()
+            winFlag = networkManager.winFlag
+            networkManager.lock.release()
+            
             if curGame.gameOverFlag:
+                print('YOULOSE')
+                networkManager.sendData('YOUWIN')
                 multiPlayFlag = False
                 menuFlag = True
                 screen.blit(imageGameOver, (205, 200))
                 pygame.display.flip()
                 delay = 60 * 3
                 flag = True
+                networkManager.close()
+                while flag:
+                    clock.tick(60)
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            done = True
+                            singlePlayFlag = False
+                            flag = False
+                        if event.type == pygame.KEYUP and delay == 0:
+                            flag = False
+                    delay = delay - 1 if delay > 0 else 0
+            if winFlag:
+                multiPlayFlag = False
+                menuFlag = True
+                screen.blit(imageWin, (205, 200))
+                pygame.display.flip()
+                delay = 60 * 3
+                flag = True
+                networkManager.close()
                 while flag:
                     clock.tick(60)
                     for event in pygame.event.get():

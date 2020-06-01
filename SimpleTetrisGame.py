@@ -1,5 +1,6 @@
 import random
 import copy
+import time
 from SimpleTetrisConstant import *
 
 class SimpleTetrisGame():
@@ -104,6 +105,7 @@ class SimpleTetrisGame():
         self.lockFlag = False
         self.softLockFlag = False
         self.gravityCount = DELAY_GRAVITY
+        self.getMinoFlag = True
 
     def Collide(self, mino, pos, rot, newrot, kick):
         if not mino == 'I' and (pos[0] > 25 or pos [1] < 0 or pos[1] > 9):
@@ -371,3 +373,27 @@ class SimpleTetrisGame():
             for j in range(10):
                     data += str(self.field[i][j])
         return data
+    
+    def newLine(self, line):
+        flag = False
+        for i in range(24):
+            for j in range(10):
+                if self.ghostField[i][j] != 0:
+                    flag = True
+                    break
+            if flag:
+                break
+        top = i
+        i = max(top - line, 0)
+        hole = int(time.time()) % 10
+        while i < 25:
+            if i < 25 - line:
+                for j in range(10):
+                    self.field[i][j] = self.field[top][j] if self.field[top][j] == self.ghostField[top][j] else self.field[i][j]
+                    self.ghostField[i][j] = self.field[top][j] if self.field[top][j] == self.ghostField[top][j] else self.ghostField[i][j]
+            else:
+                for j in range(10):
+                    self.field[i][j] = 0 if j == hole else 8
+                    self.ghostField[i][j] = 0 if j == hole else 8
+            i += 1
+            top += 1

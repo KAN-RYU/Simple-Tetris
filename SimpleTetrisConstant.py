@@ -33,7 +33,8 @@ IMAGE_BLOCK = ['',
                './Sprite/LBlock.png',
                './Sprite/JBlock.png',
                './Sprite/OBlock.png',
-               './Sprite/IBlock.png',]
+               './Sprite/IBlock.png',
+               './Sprite/Block.png',]
 
 IMAGE_SHADOW = ['',
                 './Sprite/TMino_shadow.png',
@@ -79,6 +80,7 @@ IMAGE_NUM = ['./Sprite/0.png',
 IMAGE_GAMEOVER = './Sprite/GameOver.png'
 IMAGE_COMBO = './Sprite/Combo.png'
 IMAGE_LINE = './Sprite/Line.png'
+IMAGE_WIN = './Sprite/YouWin.png'
 IMAGE_BACKGROUND = './Sprite/Background.png'
 IMAGE_BACKGROUND_MULTI = './Sprite/BackgroundMulti.png'
 
