@@ -26,8 +26,12 @@ class SimpleTetrisClient():
         for i in range(12):
             self.oppoField[25][i] = 8
             self.oppoField[26][i] = 8
+        
+        self.attackQueue = []
+        self.winFlag = False
 
         self.network.daemon = True
+        self.networkFlag = True
         self.network.start()
 
     def printLog(self, message):
@@ -56,10 +60,24 @@ class SimpleTetrisClient():
         time.sleep(3)
         self.ready = True
         
+        self.clientSock.settimeout(1)
+        
         tmp = b''
         while True:
-            recvData = self.clientSock.recv(1024)
-            tmp += recvData
+            self.lock.acquire()
+            flag = self.networkFlag
+            self.lock.release()
+            if not flag:
+                self.clientSock.close()
+                break
+            
+            if not len(tmp) > 4:
+                try:
+                    recvData = self.clientSock.recv(1024)
+                except timeout:
+                    pass
+                else:
+                    tmp += recvData
             if len(tmp) < 4:
                 continue
             mesLength = int.from_bytes(tmp[0:4], "little")
@@ -67,11 +85,28 @@ class SimpleTetrisClient():
                 continue
             recvData = tmp[4:4+mesLength].decode('utf-8')
             tmp = tmp[4+mesLength:]
-            self.lock.acquire()
-            for i, s in enumerate(recvData[4:]):
-                self.oppoField[4 + i // 10][i % 10] = int(s)
-            self.lock.release()
+            if recvData[4:4+6] == 'ATTACK':
+                print(recvData)
+                self.lock.acquire()
+                self.attackQueue.append(int(recvData[4+6:]))
+                self.lock.release()
+            elif recvData[4:4+6] == 'YOUWIN':
+                print(recvData)
+                self.lock.acquire()
+                self.winFlag = True
+                self.lock.release()
+            else:
+                self.lock.acquire()
+                for i, s in enumerate(recvData[4:]):
+                    self.oppoField[4 + i // 10][i % 10] = int(s)
+                self.lock.release()
     
     def sendData(self, data):
         self.clientSock.send(len(data.encode('utf-8')).to_bytes(4, byteorder = 'little'))
         self.clientSock.send(data.encode('utf-8'))
+    
+    def close(self):
+        self.lock.acquire()
+        self.networkFlag = False
+        self.lock.release()
+        self.network.join()

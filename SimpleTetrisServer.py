@@ -21,12 +21,10 @@ class battleManager():
         self.awayReceiver.daemon = True
         self.homeReceiver.start()
         self.awayReceiver.start()
-        print('receiver')
         
         self.serverSender = threading.Thread(target=self.sender, args=())
         self.serverSender.daemon = True
         self.serverSender.start()
-        print('sender')
         
         self.homeSock.send('Connected.'.encode('utf-8'))
         self.awaySock.send('Connected.'.encode('utf-8'))
@@ -40,10 +38,12 @@ class battleManager():
         while True:
             mes = self.Message.get()
             try:
+                if len(mes) < 100:
+                    print(mes)
                 if mes[:4] == 'home':
                     self.awaySock.send(len(mes.encode('utf-8')).to_bytes(4, byteorder = 'little'))
                     self.awaySock.send(mes.encode('utf-8'))
-                if mes[:4] == 'away':
+                elif mes[:4] == 'away':
                     self.homeSock.send(len(mes.encode('utf-8')).to_bytes(4, byteorder = 'little'))
                     self.homeSock.send(mes.encode('utf-8'))
             except:
