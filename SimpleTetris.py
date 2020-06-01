@@ -470,6 +470,15 @@ if __name__ == "__main__":
                 s = pygame.Surface((130, 130), pygame.SRCALPHA)
                 s.fill((0, 0, 0, 128))
                 screen.blit(s, (35, 110))
+            
+            networkManager.lock.acquire()
+            f = 0
+            for i, n in enumerate(networkManager.attackQueue):
+                a = pygame.Surface((6, 30 * n - 4), pygame.SRCALPHA)
+                a.fill((255 if i == 0 else 0, 255 if i != 0 else 0, 255 if i != 0 else 0, 255))
+                f += n
+                screen.blit(a, (168, 680 - 30 * f + 4))
+            networkManager.lock.release()
 
             #ANCHOR - Field
             for i in range(4, 25):
