@@ -52,7 +52,9 @@ IMAGE_BUTTON = ['./Sprite/SinglePlayButtonOn.png',
                 './Sprite/MultiPlayButtonOn.png',
                 './Sprite/MultiPlayButtonDown.png',
                 './Sprite/ExitButtonOn.png',
-                './Sprite/ExitButtonDown.png']
+                './Sprite/ExitButtonDown.png',
+                './Sprite/SettingButtonOn.png',
+                './Sprite/SettingButtonDown.png',]
 
 IMAGE_CLEAR = ['./Sprite/ClearSingle.png',
                './Sprite/ClearSingleTspin.png',
