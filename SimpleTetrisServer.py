@@ -53,8 +53,12 @@ class battleManager():
         tmp = b''
         while True:
             try:
-                recvData = sock.recv(1024)
-                tmp += recvData
+                try:
+                    recvData = sock.recv(1024)
+                except:
+                    pass
+                else:
+                    tmp += recvData
                 if len(tmp) < 4:
                     continue
                 mesLength = int.from_bytes(tmp[0:4], "little")
@@ -63,6 +67,10 @@ class battleManager():
                 self.Message.put(('home' if home else 'away') + tmp[4:4+mesLength].decode('utf-8'))
                 tmp = tmp[4+mesLength:]
             except:
+                lock.acquire()
+                message = 'Disconnected by ' + name
+                print(message + ' ' + str(addr[0]) + ":" + str(addr[1]))
+                lock.release()
                 break
 
 def receive(sock, name, addr):
@@ -101,6 +109,7 @@ if __name__ == "__main__":
         try:
             try:
                 connectionSock, addr = serverSock.accept()
+                print(addr)
                 lock.acquire()
                 client.append((connectionSock, addr))
                 if len(client) % 2 == 0 and len(client) > 0:
