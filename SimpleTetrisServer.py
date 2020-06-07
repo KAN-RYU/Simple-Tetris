@@ -51,11 +51,12 @@ class battleManager():
     
     def receiver(self, sock, addr, home):
         tmp = b''
+        sock.settimeout(1)
         while True:
             try:
                 try:
                     recvData = sock.recv(1024)
-                except:
+                except timeout:
                     pass
                 else:
                     tmp += recvData

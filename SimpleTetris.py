@@ -364,20 +364,20 @@ if __name__ == "__main__":
             #SECTION - Processing key input
             #ANCHOR - Shift movement
             pressed = pygame.key.get_pressed()
-            if pressed[pygame.K_a]:
+            if pressed[config.key_Left]:
                 curGame.moveLeft()
 
-            elif pressed[pygame.K_d]:
+            elif pressed[config.key_Right]:
                 curGame.moveRight()
 
-            elif not pressed[pygame.K_a] or not pressed[pygame.K_d]:
+            elif not pressed[config.key_Left] or not pressed[config.key_Right]:
                 curGame.moveDelay = 0
 
             #ANCHOR - Spin Movement
-            if pressed[pygame.K_j]:
+            if pressed[config.key_SpinCW]:
                 curGame.spinCW()
 
-            if not pressed[pygame.K_j]:
+            if not pressed[config.key_SpinCW]:
                 curGame.spinCWDelay = False
 
             if pressed[config.key_SpinCCW]:
