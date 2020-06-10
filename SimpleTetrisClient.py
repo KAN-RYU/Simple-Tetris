@@ -45,7 +45,7 @@ class SimpleTetrisClient():
 
         while True:
             try:
-                self.clientSock.connect(('127.0.0.1', port))
+                self.clientSock.connect(('182.224.61.39', port))
             except:
                 self.printLog('Server Connection failed. retry...')
             else:
@@ -71,13 +71,12 @@ class SimpleTetrisClient():
                 self.clientSock.close()
                 break
             
-            if not len(tmp) > 4:
-                try:
-                    recvData = self.clientSock.recv(1024)
-                except timeout:
-                    pass
-                else:
-                    tmp += recvData
+            try:
+                recvData = self.clientSock.recv(1024)
+            except:
+                pass
+            else:
+                tmp += recvData
             if len(tmp) < 4:
                 continue
             mesLength = int.from_bytes(tmp[0:4], "little")
