@@ -45,7 +45,7 @@ class SimpleTetrisClient():
 
         while True:
             try:
-                self.clientSock.connect(('182.224.61.39', port))
+                self.clientSock.connect(('127.0.0.1', port))
             except:
                 self.printLog('Server Connection failed. retry...')
             else:
