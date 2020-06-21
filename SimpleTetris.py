@@ -322,7 +322,7 @@ if __name__ == "__main__":
 
         #SECTION - Multi play block
         if multiPlayFlag:
-            networkManager = SimpleTetrisClient(config.server_ip)
+            networkManager = SimpleTetrisClient(config.server_ip, config.nickname)
             txt = ["Connecting..."]
             while not networkManager.ready:
                 clock.tick(60)

@@ -14,3 +14,4 @@ debug.log
 *.ini
 *.spec
 List.txt
+*.bin
