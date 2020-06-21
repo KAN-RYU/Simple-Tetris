@@ -14,6 +14,10 @@ class SimpleTetrisConfig():
     key_SpinCCW = pygame.K_l
     key_Hold = pygame.K_k
     
+    #Network
+    nickname = 'noname'
+    server_ip = '127.0.0.1'
+    
     def __init__(self):
         self.loadConfig()
         
@@ -32,6 +36,8 @@ class SimpleTetrisConfig():
             self.key_SpinCW = config.getint('Key', 'spincw')
             self.key_SpinCCW = config.getint('Key', 'spinccw')
             self.key_Hold = config.getint('Key', 'hold')
+            self.nickname = config.get('Network', 'nickname')
+            self.server_ip = config.get('Network', 'server_ip')
             
         except BaseException:
             print('Fail to load config file. Fixing config file...')
@@ -51,6 +57,10 @@ class SimpleTetrisConfig():
         config.set('Key', 'spincw', self.key_SpinCW)
         config.set('Key', 'spinccw', self.key_SpinCCW)
         config.set('Key', 'hold', self.key_Hold)
+        
+        config.add_section('Network')
+        config.set('Network', 'nickname', self.nickname)
+        config.set('Network', 'server_ip', self.server_ip)
         
         try:
             with open(self.configFilePath, 'w') as configFile:
