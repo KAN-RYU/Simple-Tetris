@@ -4,9 +4,10 @@ from queue import Queue
 import time
 
 class SimpleTetrisClient():
-    def __init__(self, ip):
+    def __init__(self, ip, nickname):
         self.clientSock = socket(AF_INET, SOCK_STREAM)
         self.server_ip = ip
+        self.nickname = nickname
 
         self.network = threading.Thread(target = self.networkRunner, args = ())
         self.connected = False
@@ -51,6 +52,7 @@ class SimpleTetrisClient():
                 self.printLog('Server Connection failed. retry...')
             else:
                 break
+        self.sendData(self.nickname)
         self.printLog('Server Connected, Wait opponent.')
         self.connected = True
         
